@@ -9,33 +9,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
-        :root { --brand-red: #d52b1e; }
+        :root { --brand-red: #d52b1e; --brand-black: #1a1a1a; }
 
-        /* --- 3D Box Styles --- */
-        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 6px 6px 0px 0px #059669; transition: 0.2s; }
-        .box-normal:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #059669; }
-
-        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 6px 6px 0px 0px #d97706; transition: 0.2s; }
-        .box-warning:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #d97706; }
-
-        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 6px 6px 0px 0px #dc2626; transition: 0.2s; }
-        .box-overdue:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #dc2626; }
+        /* 3D Styles */
+        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 4px 4px 0px 0px #059669; transition: 0.2s; }
+        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 4px 4px 0px 0px #d97706; transition: 0.2s; }
+        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 4px 4px 0px 0px #dc2626; transition: 0.2s; }
+        
+        .box-normal:hover, .box-warning:hover, .box-overdue:hover { transform: translate(-2px, -2px); }
 
         .btn-3d { transition: 0.15s; box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2); }
         .btn-3d:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.2); }
 
-        /* Loader */
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #d52b1e; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #d52b1e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Animations */
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
 
         /* Manual Styling */
-        .manual-section h3 { font-weight: 800; font-size: 1rem; margin-top: 1rem; margin-bottom: 0.25rem; color: #1e3a8a; }
-        .manual-section p, .manual-section li { font-size: 0.85rem; color: #4b5563; line-height: 1.5; }
-        .manual-section ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+        .manual-section h3 { font-weight: 800; color: var(--brand-red); margin-top: 1rem; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .manual-section ul { list-style: disc; padding-left: 1.25rem; margin-top: 0.5rem; }
     </style>
 </head>
 <body class="h-full bg-slate-50 text-gray-800">
@@ -54,12 +47,10 @@
                     </div>
                     
                     <div class="flex gap-2">
-                        <!-- Manual Button -->
-                        <button onclick="openHelpModal()" class="shrink-0 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold text-[10px] hover:bg-blue-100 transition-colors flex items-center gap-1">
+                        <button onclick="openHelpModal()" class="shrink-0 px-3 py-1 bg-white border border-gray-300 text-gray-600 rounded font-bold text-[10px] hover:bg-gray-100 flex items-center gap-1 shadow-sm">
                             <span>📘</span> <span id="manualBtnText">คู่มือ</span>
                         </button>
-                        <!-- Language Toggle -->
-                        <button onclick="toggleLang()" class="shrink-0 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded font-bold text-[10px] transition-colors" id="langBtn">TH / EN</button>
+                        <button onclick="toggleLang()" class="shrink-0 px-2 py-1 bg-gray-800 text-white border border-gray-800 rounded font-bold text-[10px] transition-colors" id="langBtn">TH / EN</button>
                     </div>
                 </div>
                 
@@ -73,6 +64,14 @@
 
         <!-- CONTENT -->
         <main class="p-4 pb-20 space-y-8">
+            <!-- Error Display -->
+            <div id="errorState" class="hidden p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm mb-4 rounded shadow-sm flex justify-between items-center">
+                <div>
+                    <strong class="font-bold">System Error:</strong> <span id="errorMsg">Unknown error</span>
+                </div>
+                <button onclick="window.location.reload()" class="underline font-bold ml-2">Reload</button>
+            </div>
+
             <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 border-2 border-gray-800 shadow-[4px_4px_0px_0px_#1f2937] rounded"><p class="text-[10px] font-black text-gray-400" data-i18n="stat_total">TOTAL</p><h3 id="statTotal" class="text-3xl font-black text-gray-800">...</h3></div>
@@ -84,7 +83,7 @@
             <!-- Loading -->
             <div id="loadingState" class="flex flex-col items-center justify-center py-10">
                 <div class="loader mb-2"></div>
-                <p class="text-xs text-gray-400 animate-pulse">Loading Data...</p>
+                <p class="text-xs text-gray-400 animate-pulse">Connecting to Server...</p>
             </div>
 
             <!-- List -->
@@ -93,71 +92,77 @@
     </div>
 
     <!-- ADD MODAL -->
-    <div id="addModalOverlay" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-[10px_10px_0px_0px_rgba(0,0,0,0.5)] border-4 border-black p-6 relative rounded-lg">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black uppercase tracking-tight" data-i18n="modal_title">ADD TOOL</h2>
-                <button onclick="closeAddModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">×</button>
+    <div id="addModalOverlay" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl rounded-lg relative border-t-8 border-[--brand-red]">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-gray-900" data-i18n="modal_title">ADD TOOL</h2>
+                    <button onclick="closeAddModal()" class="text-gray-400 hover:text-[--brand-red] text-3xl font-bold leading-none">&times;</button>
+                </div>
+                
+                <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
+                    <!-- Photo Input -->
+                    <div class="w-full">
+                        <label class="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider" data-i18n="label_photo">PHOTO</label>
+                        <label class="block w-full h-48 bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-500 rounded-lg cursor-pointer relative flex items-center justify-center overflow-hidden transition-colors">
+                            <img id="preview" class="absolute w-full h-full object-cover hidden">
+                            <div id="uploadPlaceholder" class="text-center"><span class="text-4xl text-gray-300">📷</span><p class="text-xs text-gray-500 mt-2 font-bold" data-i18n="tap_camera">ATTACH PHOTO</p></div>
+                            <input type="file" id="imgInput" accept="image/*" capture="environment" class="hidden" onchange="handleImage(this)">
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
+                        <div><label class="text-xs font-bold text-gray-500">NAME TOOL *</label><input type="text" name="name" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-gray-500">LAST DATE</label><input type="date" name="lastDate" class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50"></div>
+                        <div><label class="text-xs font-bold text-gray-500">NEXT DUE *</label><input type="date" name="nextDate" required class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 border-red-200"></div>
+                    </div>
+                    
+                    <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                    
+                    <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CALIBRATION DOC (PDF)</label>
+                        <label class="flex items-center justify-center w-full py-3 px-4 border border-dashed border-gray-400 rounded cursor-pointer hover:bg-gray-50 transition-colors">
+                            <span class="text-xl mr-2">📎</span>
+                            <span id="pdfName" class="text-xs text-gray-600 font-medium truncate">Choose PDF File...</span>
+                            <input type="file" id="pdfInput" accept="application/pdf" class="hidden" onchange="handlePdf(this)">
+                        </label>
+                    </div>
+
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="closeAddModal()" class="flex-1 py-3 border border-gray-300 font-bold text-xs uppercase tracking-wider hover:bg-gray-100 rounded" data-i18n="btn_cancel">CANCEL</button>
+                        <button type="submit" id="submitBtn" class="flex-1 py-3 bg-[--brand-red] text-white font-bold text-xs uppercase tracking-wider btn-3d rounded hover:bg-[#b91c1c]" data-i18n="btn_save">SAVE</button>
+                    </div>
+                </form>
             </div>
-            
-            <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
-                <!-- Photo Input -->
-                <div class="w-full">
-                    <label class="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider" data-i18n="label_photo">PHOTO</label>
-                    <label class="block w-full h-48 bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-500 rounded-lg cursor-pointer relative flex items-center justify-center overflow-hidden transition-colors">
-                        <img id="preview" class="absolute w-full h-full object-cover hidden">
-                        <div id="uploadPlaceholder" class="text-center"><span class="text-4xl">📷</span><p class="text-xs text-gray-500 mt-2 font-bold" data-i18n="tap_camera">ATTACH PHOTO</p></div>
-                        <input type="file" id="imgInput" accept="image/*" capture="environment" class="hidden" onchange="handleImage(this)">
-                    </label>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-                    <div><label class="text-xs font-bold text-gray-500">NAME TOOL / ชื่ออุปกรณ์/เครื่องมือ *</label><input type="text" name="name" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-xs font-bold text-gray-500">LAST DATE</label><input type="date" name="lastDate" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
-                    <div><label class="text-xs font-bold text-gray-500">NEXT DUE *</label><input type="date" name="nextDate" required class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
-                </div>
-                
-                <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-                
-                <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CA (PDF)</label>
-                    <label class="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                        <span id="pdfName" class="text-xs text-gray-500 font-medium truncate">Choose PDF File...</span>
-                        <input type="file" id="pdfInput" accept="application/pdf" class="hidden" onchange="handlePdf(this)">
-                    </label>
-                </div>
-
-                <div class="pt-4 flex gap-3">
-                    <button type="button" onclick="closeAddModal()" class="flex-1 py-3.5 border-2 border-gray-300 font-bold text-xs uppercase tracking-wider hover:bg-gray-100" data-i18n="btn_cancel">CANCEL</button>
-                    <button type="submit" id="submitBtn" class="flex-1 py-3.5 bg-black text-white font-bold text-xs uppercase tracking-wider btn-3d hover:bg-gray-800" data-i18n="btn_save">SAVE</button>
-                </div>
-            </form>
         </div>
     </div>
 
-    <!-- ALERT POPUP -->
-    <div id="alertModalOverlay" class="fixed inset-0 bg-red-900/90 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white w-full max-w-lg max-h-[85vh] flex flex-col shadow-[0px_20px_50px_rgba(0,0,0,0.5)] border-4 border-red-600 animate-slide-down rounded-lg">
-            <div class="bg-red-600 p-5 flex items-center justify-between">
-                <div class="flex items-center gap-3 text-white">
-                    <span class="text-3xl">⚠️</span>
+    <!-- ALERT POPUP (Schindler Theme) -->
+    <div id="alertModalOverlay" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl rounded-lg border-t-8 border-[--brand-red] animate-slide-down">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-start">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-[--brand-red] text-xl font-bold">!</div>
                     <div>
-                        <h2 class="text-xl font-black uppercase tracking-tight" data-i18n="alert_title">ATTENTION REQUIRED</h2>
-                        <p class="text-xs font-medium text-red-100" data-i18n="alert_subtitle">The following items need action</p>
+                        <h2 class="text-xl font-black uppercase tracking-tight text-gray-900" data-i18n="alert_title">ATTENTION REQUIRED</h2>
+                        <p class="text-xs text-gray-500 mt-1" data-i18n="alert_subtitle">รายการต้องตรวจสอบ / ดำเนินการ</p>
                     </div>
                 </div>
-                <button onclick="closeAlertModal()" class="text-white/80 hover:text-white font-bold text-2xl">✕</button>
+                <button onclick="closeAlertModal()" class="text-gray-400 hover:text-black font-bold text-xl">&times;</button>
             </div>
-            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer"></div>
+            
+            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer">
+                <!-- Items injected here -->
+            </div>
+
             <div class="p-4 border-t border-gray-200 bg-white">
-                <button onclick="closeAlertModal()" class="w-full py-3 bg-gray-900 text-white font-bold text-sm uppercase tracking-wider btn-3d rounded hover:bg-black">
+                <button onclick="closeAlertModal()" class="w-full py-3 bg-[--brand-black] text-white font-bold text-sm uppercase tracking-wider btn-3d rounded hover:bg-black">
                     ACKNOWLEDGE / รับทราบ
                 </button>
             </div>
@@ -165,18 +170,17 @@
     </div>
 
     <!-- HELP/MANUAL MODAL -->
-    <div id="helpModalOverlay" class="fixed inset-0 bg-slate-900/80 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border-4 border-blue-600 rounded-lg relative">
-            <div class="bg-blue-600 p-5 flex justify-between items-center sticky top-0 z-10">
-                <div class="flex items-center gap-3 text-white">
-                    <span class="text-3xl">📘</span>
-                    <h2 class="text-xl font-black uppercase tracking-tight" id="manualTitle">USER MANUAL</h2>
+    <div id="helpModalOverlay" class="fixed inset-0 bg-black/80 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl rounded-lg relative border-t-8 border-blue-600">
+            <div class="p-5 flex justify-between items-center border-b sticky top-0 bg-white z-10">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📘</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight text-gray-900" id="manualTitle">USER MANUAL</h2>
                 </div>
-                <button onclick="closeHelpModal()" class="text-white hover:text-blue-100 font-bold text-2xl">✕</button>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-black font-bold text-2xl">&times;</button>
             </div>
             
             <div class="p-6 space-y-6 manual-section">
-                <!-- THAI MANUAL -->
                 <div id="manualContentTH">
                     <h3>1. ภาพรวมระบบ (Overview)</h3>
                     <p>ระบบ <strong>CALIBRATION TFS TOOLS</strong> ช่วยบริหารจัดการวันครบกำหนดสอบเทียบเครื่องมือวัดในแผนก TFS โดยจะคำนวณสถานะอัตโนมัติและแจ้งเตือนเมื่อถึงกำหนด</p>
@@ -188,20 +192,18 @@
                     </ul>
                     <h3>3. การเพิ่มอุปกรณ์ (Add Tool)</h3>
                     <ul>
-                        <li>กดปุ่ม <strong>"+ เพิ่มอุปกรณ์"</strong> ด้านบน</li>
+                        <li>กดปุ่ม <strong>"+ ADD TOOL"</strong> ด้านบน</li>
                         <li><strong>รูปถ่าย (Photo):</strong> แตะที่กรอบเพื่อแนบรูป</li>
                         <li>กรอกข้อมูลให้ครบถ้วน โดยเฉพาะ <strong>Next Due (วันครบกำหนด)</strong></li>
                         <li><strong>แนบเอกสาร Calibration:</strong> เลือกไฟล์ PDF (ขนาดไม่เกิน 5MB)</li>
-                        <li>กด <strong>บันทึก (Save)</strong> และรอจนขึ้น Success</li>
+                        <li>กด <strong>SAVE</strong> และรอจนขึ้น Success</li>
                     </ul>
                     <h3>4. การดูเอกสาร</h3>
                     <p>กดปุ่ม <strong>📄 ดูเอกสาร Calibration</strong> ที่การ์ดรายการ (ปุ่มจะขึ้นเฉพาะรายการที่มีไฟล์แนบ)</p>
                 </div>
-
-                <!-- ENGLISH MANUAL -->
                 <div id="manualContentEN" class="hidden">
                     <h3>1. System Overview</h3>
-                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates for tools. It automatically alerts users of upcoming or overdue items.</p>
+                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates. It automatically alerts users of upcoming or overdue items.</p>
                     <h3>2. Status Indicators</h3>
                     <ul>
                         <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>Normal:</strong> > 30 days remaining.</li>
@@ -211,26 +213,23 @@
                     <h3>3. Adding a Tool</h3>
                     <ul>
                         <li>Click <strong>"+ ADD TOOL"</strong>.</li>
-                        <li><strong>Photo:</strong> Attach an image of the tool.</li>
+                        <li><strong>Photo:</strong> Attach an image.</li>
                         <li>Fill in details, especially <strong>Next Due</strong>.</li>
-                        <li><strong>Attach PDF:</strong> Upload Calibration Certificate (Max 5MB).</li>
+                        <li><strong>Attach PDF:</strong> Upload Calibration Certificate.</li>
                         <li>Click <strong>SAVE</strong>.</li>
                     </ul>
-                    <h3>4. Viewing Documents</h3>
-                    <p>Click <strong>📄 VIEW CALIBRATION</strong> on the tool card to view the PDF.</p>
                 </div>
             </div>
-            
-            <div class="p-4 border-t border-gray-200 bg-gray-50 text-center">
-                <button onclick="closeHelpModal()" class="px-8 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 btn-3d">CLOSE / ปิด</button>
+            <div class="p-4 border-t bg-gray-50 text-center">
+                <button onclick="closeHelpModal()" class="px-8 py-2 bg-gray-800 text-white font-bold rounded hover:bg-black btn-3d">CLOSE / ปิด</button>
             </div>
         </div>
     </div>
 
     <script>
         // **************************************************************************
-        // URL ของคุณที่ได้จากการ Deploy Web App (ตรวจสอบว่าลงท้ายด้วย /exec)
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO6DzCDexU-hFAPrPaNmtD8yTxI9MhIw_RV-8dJQCaTSJavAS5hWPMHmD6mh1KTJNV/exec';
+        // URL ของคุณจากการ Deploy (New Deployment > Web App > Anyone)
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ850aYNAAVcOJaLxrXR07rbwAqp2Qyiv4p8TWCj1kMsdxkn33aUqnC4xlqYnnCBJw/exec';
         // **************************************************************************
 
         let currentLang = 'th';
@@ -287,11 +286,30 @@
         }
 
         async function fetchData() {
+            const loading = document.getElementById('loadingState');
+            const errorDiv = document.getElementById('errorState');
+            const errorMsg = document.getElementById('errorMsg');
+
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                if (!response.ok) throw new Error("HTTP " + response.status);
-                rawData = await response.json();
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
+                // Read text first to debug if JSON parse fails
+                const text = await response.text();
+                try {
+                    rawData = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Invalid Data Format. (Check App Script Deployment)");
+                }
+
+                // Check for API-level error
+                if (rawData.status === 'error') throw new Error(rawData.message);
+                
+                // If Array check fails (Fix for map error)
+                if (!Array.isArray(rawData)) {
+                    rawData = []; // Fallback to empty
+                }
+
                 rawData = rawData.map(item => {
                     const next = new Date(item.nextDate);
                     const today = new Date(); today.setHours(0,0,0,0);
@@ -306,13 +324,14 @@
                 updateStats();
                 renderList();
                 checkDailyAlerts(rawData);
-                document.getElementById('loadingState').classList.add('hidden');
+                loading.classList.add('hidden');
                 document.getElementById('equipmentList').classList.remove('hidden');
 
             } catch (error) {
                 console.error(error);
-                alert("Connection Error. Please try again later.\n" + error.message);
-                document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Connection Failed</p>`;
+                loading.classList.add('hidden');
+                errorDiv.classList.remove('hidden');
+                errorMsg.innerText = error.message;
             }
         }
 
@@ -361,12 +380,17 @@
                 alerts.forEach(item => {
                     const isOverdue = item.status === 'overdue';
                     const icon = isOverdue ? '🔴' : '🟡';
+                    const colorClass = isOverdue ? 'text-red-700' : 'text-amber-700';
                     container.innerHTML += `
-                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border-l-8 ${isOverdue ? 'border-red-500' : 'border-amber-500'} shadow-sm rounded-r-lg">
-                            <span class="text-xl mt-1">${icon}</span>
+                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md transition-shadow">
+                            <span class="text-lg mt-0.5">${icon}</span>
                             <div class="flex-1">
-                                <h4 class="font-bold text-gray-900">${item.name}</h4>
-                                <div class="flex justify-between mt-1 text-sm"><span class="text-gray-600">PSI: <strong>${item.owner}</strong></span><span class="font-mono font-bold">${formatDate(item.nextDate)}</span></div>
+                                <div class="flex justify-between">
+                                    <h4 class="font-bold text-gray-900 text-sm">${item.name}</h4>
+                                    <span class="text-[10px] font-bold ${colorClass}">${isOverdue ? 'Overdue' : 'Due Soon'}</span>
+                                </div>
+                                <p class="text-xs text-gray-500">ID: ${item.id} | PSI: ${item.owner}</p>
+                                <p class="text-xs font-mono font-bold mt-1 text-gray-700">Due: ${formatDate(item.nextDate)}</p>
                             </div>
                         </div>`;
                 });
@@ -386,38 +410,44 @@
         }
 
         function handleImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const scale = 800 / img.width;
-                        canvas.width = 800; canvas.height = img.height * scale;
-                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        imageBase64 = canvas.toDataURL('image/jpeg', 0.6); 
-                        document.getElementById('preview').src = imageBase64;
-                        document.getElementById('preview').classList.remove('hidden');
-                        document.getElementById('uploadPlaceholder').classList.add('hidden');
-                    }
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+            fileToBase64(input, (base64) => {
+                imageBase64 = base64;
+                document.getElementById('preview').src = base64;
+                document.getElementById('preview').classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+            }, true);
         }
 
         function handlePdf(input) {
-            if (input.files[0].size > 5 * 1024 * 1024) { alert("File too large > 5MB"); input.value=""; return; }
+            if(input.files[0].size > 5*1024*1024) { alert("File too large > 5MB"); input.value=""; return; }
             document.getElementById('pdfName').innerText = input.files[0].name;
+            fileToBase64(input, (base64) => { pdfBase64 = base64; }, false);
+        }
+
+        function fileToBase64(input, callback, compress) {
+            if (!input.files || !input.files[0]) return;
             const reader = new FileReader();
-            reader.onload = (e) => { pdfBase64 = e.target.result; };
+            reader.onload = (e) => {
+                if (compress) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const cvs = document.createElement('canvas');
+                        const scale = 800 / img.width;
+                        cvs.width = 800; cvs.height = img.height * scale;
+                        cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+                        callback(cvs.toDataURL('image/jpeg', 0.6));
+                    };
+                } else {
+                    callback(e.target.result);
+                }
+            };
             reader.readAsDataURL(input.files[0]);
         }
 
         function submitData(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerText;
             btn.innerText = "UPLOADING...";
             btn.disabled = true;
 
@@ -435,7 +465,7 @@
                 else throw new Error(data.message);
             })
             .catch(err => { alert("Error: " + err.message); })
-            .finally(() => { btn.innerText = originalText; btn.disabled = false; });
+            .finally(() => { btn.innerText = "SAVE"; btn.disabled = false; });
         }
 
         function openAddModal() { document.getElementById('addModalOverlay').classList.remove('hidden'); }
@@ -448,12 +478,12 @@
             imageBase64 = null; pdfBase64 = null;
         }
         function formatDate(d) {
+            if(!d) return "-";
             const date = new Date(d);
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
         }
     </script>
 </body>
 </html>
-
 
 
