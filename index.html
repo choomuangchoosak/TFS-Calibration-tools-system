@@ -12,18 +12,20 @@
         :root { --schindler-red: #d52b1e; }
         body { background-color: #f8fafc; }
 
-        /* --- Dashboard Elements --- */
+        /* --- UI Elements --- */
         .box-3d {
             background-color: white; border: 1px solid #e5e7eb;
             box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.08); 
             transition: all 0.2s ease; cursor: pointer;
         }
         
-        /* Active States */
-        .card-active-all { background-color: #334155 !important; color: white !important; border-color: #1e293b !important; }
-        .card-active-normal { background-color: #059669 !important; color: white !important; border-color: #064e3b !important; }
-        .card-active-warning { background-color: #d97706 !important; color: white !important; border-color: #92400e !important; }
-        .card-active-overdue { background-color: #d52b1e !important; color: white !important; border-color: #991b1b !important; }
+        .card-active-all, .card-active-normal, .card-active-warning, .card-active-overdue {
+            color: white !important; transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px transparent !important;
+        }
+        .card-active-all { background-color: #334155 !important; border-color: #1e293b !important; }
+        .card-active-normal { background-color: #059669 !important; border-color: #064e3b !important; }
+        .card-active-warning { background-color: #d97706 !important; border-color: #92400e !important; }
+        .card-active-overdue { background-color: #d52b1e !important; border-color: #991b1b !important; }
 
         .card-active-all p, .card-active-all h3, .card-active-normal p, .card-active-normal h3,
         .card-active-warning p, .card-active-warning h3, .card-active-overdue p, .card-active-overdue h3 {
@@ -59,7 +61,7 @@
                 </div>
 
                 <div class="flex items-center gap-1.5 pt-1.5 border-t border-white/20">
-                    <!-- SEARCH -->
+                    <!-- SEARCH BOX: WHITE -->
                     <div class="relative flex-1 max-w-[140px] sm:max-w-xs">
                         <input type="text" id="searchInput" placeholder="ค้นหาชื่อ/รหัส..." 
                                class="w-full pl-7 pr-2 py-1.5 rounded bg-white border border-gray-200 text-gray-900 placeholder-gray-400 text-[11px] focus:ring-2 focus:ring-red-300 outline-none transition-all shadow-sm" 
@@ -67,11 +69,8 @@
                         <svg class="absolute left-2 top-2 text-gray-400" width="12" height="12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
 
-                    <!-- BUTTONS -->
                     <div class="flex items-center gap-1 ml-auto">
-                        <button onclick="openHelpModal()" class="px-2 py-1.5 bg-white/10 hover:bg-white/20 rounded text-[9px] font-bold flex items-center gap-1 transition border border-white/10">
-                            <span>📘</span> <span data-i18n="nav_manual">คู่มือ</span>
-                        </button>
+                        <button onclick="openHelpModal()" class="px-2 py-1.5 bg-white/10 hover:bg-white/20 rounded text-[9px] font-bold flex items-center gap-1 transition border border-white/10">📘 <span data-i18n="nav_manual">คู่มือ</span></button>
                         <button onclick="toggleLang()" class="px-2 py-1.5 bg-white/10 hover:bg-white/20 rounded text-[9px] font-bold transition w-8 text-center border border-white/10" id="langBtn">EN</button>
                         <button onclick="toggleAdmin()" id="adminBtn" class="p-1.5 bg-white/10 hover:bg-white/20 rounded transition relative border border-white/10 shadow-sm" title="Admin Mode">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
@@ -116,22 +115,6 @@
         </main>
     </div>
 
-    <!-- MODAL: HELP / DETAILED MANUAL -->
-    <div id="helpModalOverlay" class="fixed inset-0 bg-black/80 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl border-t-8 border-blue-600 custom-scroll flex flex-col">
-            <div class="p-4 border-b sticky top-0 bg-white z-10 flex justify-between items-center">
-                <div class="flex items-center gap-2 font-black text-sm uppercase tracking-tighter text-blue-800"><span>📘</span> <span data-i18n="manual_modal_title">คู่มือการใช้งานระบบ</span></div>
-                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-black font-bold text-xl">&times;</button>
-            </div>
-            <div class="p-6 space-y-8 text-xs text-gray-600 leading-relaxed overflow-y-auto" id="manualBody">
-                <!-- Content injected via JS -->
-            </div>
-            <div class="p-4 bg-gray-50 text-center border-t">
-                <button onclick="closeHelpModal()" class="px-10 py-2.5 bg-gray-800 text-white font-bold text-xs rounded uppercase tracking-widest shadow hover:bg-black transition-all" data-i18n="btn_close">ปิด</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: PDF PREVIEW -->
     <div id="pdfPreviewModal" class="fixed inset-0 bg-black/80 z-[200] hidden flex items-center justify-center p-2 backdrop-blur-sm">
         <div class="bg-white w-full max-w-4xl h-fit rounded-lg shadow-2xl flex flex-col overflow-hidden animate-slide-down">
@@ -173,7 +156,7 @@
                 <h3 class="font-black text-[10px] uppercase" id="historyModalTitle">History</h3>
                 <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="text-xl font-bold text-gray-400 hover:text-black">&times;</button>
             </div>
-            <div id="historyContent" class="p-4 overflow-y-auto flex-1 space-y-3 bg-gray-50 custom-scroll"></div>
+            <div id="historyContent" class="p-3 overflow-y-auto flex-1 space-y-3 bg-gray-50 custom-scroll"></div>
         </div>
     </div>
 
@@ -186,7 +169,7 @@
             </div>
             <form id="addForm" onsubmit="submitData(event)" class="space-y-4 text-[10px]">
                 <input type="hidden" id="rowIndex"> 
-                <div>
+                <div class="w-full">
                     <label class="block font-bold text-gray-400 mb-1 uppercase tracking-widest" data-i18n="label_photo">PHOTO</label>
                     <label class="block w-full h-32 bg-gray-50 border-2 border-dashed border-gray-200 hover:border-red-500 cursor-pointer relative flex items-center justify-center overflow-hidden transition-all rounded">
                         <img id="preview" class="absolute w-full h-full object-cover hidden">
@@ -224,140 +207,53 @@
         </div>
     </div>
 
-    <!-- LOGIC -->
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzVKnhJyBqOn8Pk9lfITsEVa3lrMUEC-lvu76V77luxZQa_WagUZg5uaEJrgdY9kGE0/exec';
-        
-        let allRecordsRaw = []; 
-        let allDataLatest = []; 
-        let currentFilter = 'all'; 
-        let isAdmin = false; 
-        let imageBase64 = null; 
-        let pdfBase64 = null; 
-        let currentLang = 'th';
+    <!-- MODAL: MANUAL -->
+    <div id="helpModalOverlay" class="fixed inset-0 bg-black/80 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl border-t-8 border-blue-600 custom-scroll">
+            <div class="p-4 border-b sticky top-0 bg-white z-10 flex justify-between items-center font-black text-sm uppercase"><span>📘 User Manual</span><button onclick="closeHelpModal()">&times;</button></div>
+            <div class="p-5 text-xs text-gray-600 space-y-6" id="manualBody"></div>
+            <div class="p-4 bg-gray-50 text-center border-t"><button onclick="closeHelpModal()" class="px-8 py-2 bg-gray-800 text-white font-bold text-xs rounded uppercase tracking-widest shadow hover:bg-black transition-all" data-i18n="btn_close">ปิด</button></div>
+        </div>
+    </div>
 
-        // --- TRANSLATION DICTIONARY ---
+    <!-- SCRIPT -->
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyk4ALh0Xpy34JBNOqD7jQZB4e04c5a7qIjx-XNm-aHBSHuz5mLIsyzZKJoNG34K64/exec';
+        let allRecordsRaw = []; let allDataLatest = []; let currentFilter = 'all'; let isAdmin = false; let imageBase64 = null; let pdfBase64 = null; let currentLang = 'th';
+
         const translations = {
             th: {
-                title: "CALIBRATION TFS TOOLS",
-                subtitle: "ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS",
-                search_placeholder: "ค้นหาชื่อ/รหัส...",
-                stat_total: "ทั้งหมด", stat_normal: "ปกติ", stat_soon: "ใกล้ครบ", stat_overdue: "เกินกำหนด",
-                loading: "กำลังเชื่อมต่อฐานข้อมูล TFS...",
-                nav_manual: "คู่มือ",
-                btn_add: "เพิ่ม", btn_save: "บันทึก", btn_cancel: "ยกเลิก", btn_delete: "ลบ", btn_close: "ปิด", btn_login: "เข้าสู่ระบบ",
-                modal_title_add: "เพิ่มอุปกรณ์", modal_title_edit: "แก้ไขข้อมูล",
-                label_photo: "รูปถ่าย", label_attach_photo: "แนบรูปถ่าย",
-                label_id: "รหัสเครื่องมือ *", label_name: "ชื่อเครื่องมือ *",
-                label_last_date: "สอบเทียบล่าสุด", label_next_date: "วันครบกำหนด *",
-                label_psi: "ผู้รับผิดชอบ (PSI) *", label_remarks: "หมายเหตุ",
-                label_pdf: "เอกสารสอบเทียบ (PDF)", label_choose_pdf: "เลือกไฟล์ PDF...",
-                pdf_title: "ดูเอกสาร Calibration", admin_login: "สำหรับผู้ดูแลระบบ",
-                status_ready: "พร้อมใช้งาน", status_warning_msg: "เตรียมส่งสอบเทียบ", status_danger_msg: "ห้ามใช้งานเด็ดขาด",
-                days_left: "เหลืออีก", days_over: "เกินกำหนด", history_btn: "ประวัติ", view_doc_btn: "ดูเอกสาร Calibration",
-                confirm_delete: "ยืนยันการลบข้อมูลเครื่องมือนี้หรือไม่?",
-                msg_success: "บันทึกข้อมูลเรียบร้อยแล้ว", msg_error_pass: "รหัสผ่านไม่ถูกต้อง!",
-                manual_modal_title: "คู่มือการใช้งานระบบ",
-                // DETAILED MANUAL THAI
-                man_sec1_title: "1. ระบบนี้คืออะไร? (Overview)",
-                man_sec1_body: "CALIBRATION TFS TOOLS คือระบบสมุดทะเบียนเครื่องมือออนไลน์ที่ช่วยให้ทีมงาน TFS ทุกคนรับรู้สถานะความพร้อมของเครื่องมือวัดได้แบบ Real-time โดยไม่จำเป็นต้องพกพาเอกสารกระดาษ สามารถตรวจสอบวันครบกำหนดสอบเทียบ (Next Due) และเปิดดูใบรับรอง (Certificate) ในรูปแบบ PDF ได้ทันทีผ่านมือถือจากหน้างาน ได้ทุกที่ทุกเวลา เพื่อให้มั่นใจในความแม่นยำของงานวิศวกรรม",
-                man_sec2_title: "2. ความหมายของสีสถานะ (Status Colors)",
-                man_s_green: "🟢 สีเขียว (Normal): เครื่องมือปกติ พร้อมใช้งาน (เหลืออายุมากกว่า 30 วัน)",
-                man_s_amber: "🟡 สีเหลือง (Due Soon): ใกล้ถึงกำหนด (เหลือน้อยกว่า 30 วัน) ควรทำแผนส่งสอบเทียบ",
-                man_s_red: "🔴 สีแดง (Overdue): เกินกำหนดแล้ว **ห้ามนำไปใช้งานเด็ดขาด** ต้องส่งสอบเทียบทันที",
-                man_sec3_title: "3. ระบบผู้ดูแลระบบ (Admin Guide)",
-                man_admin_login: "• เข้าสู่ระบบ: กดปุ่มรูปโล่ (🛡️) ใส่รหัสผ่านเพื่อปลดล็อคสิทธิ์ในการจัดการข้อมูล",
-                man_admin_add: "• เพิ่มอุปกรณ์: กดปุ่ม + ADD เพื่อลงทะเบียนเครื่องมือใหม่ แนบรูปถ่ายจริงและไฟล์ PDF Certificate ได้ทันที",
-                man_admin_edit: "• แก้ไข/ลบ: กดปุ่ม EDIT บนการ์ดเพื่ออัปเดตข้อมูล หรือลบทิ้งหากข้อมูลผิดพลาด",
-                man_admin_history: "• จัดการประวัติ: แอดมินสามารถเปิดดูประวัติย้อนหลังและลบรายการที่บันทึกซ้ำซ้อนหรือผิดพลาดได้"
+                title: "CALIBRATION TFS TOOLS", subtitle: "ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS",
+                search_placeholder: "ค้นหาชื่อ/รหัส...", stat_total: "ทั้งหมด", stat_normal: "ปกติ", stat_soon: "ใกล้ครบ", stat_overdue: "เกินกำหนด", loading: "กำลังเชื่อมต่อฐานข้อมูล TFS...", nav_manual: "คู่มือ",
+                btn_add: "เพิ่ม", btn_save: "บันทึก", btn_cancel: "ยกเลิก", btn_delete: "ลบอุปกรณ์", btn_close: "ปิด", btn_login: "เข้าสู่ระบบ", modal_title_add: "เพิ่มอุปกรณ์", modal_title_edit: "แก้ไขข้อมูล",
+                label_photo: "รูปถ่าย", label_attach_photo: "แนบรูปถ่าย", label_id: "รหัสเครื่องมือ *", label_name: "ชื่อเครื่องมือ *", label_last_date: "สอบเทียบล่าสุด", label_next_date: "วันครบกำหนด *",
+                label_psi: "ผู้รับผิดชอบ (PSI) *", label_remarks: "หมายเหตุ", label_pdf: "เอกสารสอบเทียบ (PDF)", label_choose_pdf: "เลือกไฟล์ PDF...", pdf_title: "ดูเอกสาร Calibration", admin_login: "สำหรับผู้ดูแลระบบ",
+                days_left: "เหลืออีก", days_over: "เกินกำหนด", history_btn: "ประวัติ", view_doc_btn: "ดูเอกสาร Calibration", confirm_delete: "ยืนยันการลบข้อมูลนี้หรือไม่?", msg_success: "บันทึกเรียบร้อยแล้ว", msg_error_pass: "รหัสผ่านไม่ถูกต้อง!", manual_modal_title: "คู่มือการใช้งานระบบ",
+                man_sec1_title: "1. ระบบนี้คืออะไร? (Overview)", man_sec1_body: "CALIBRATION TFS TOOLS คือระบบสมุดทะเบียนเครื่องมือออนไลน์ที่ช่วยให้ทีมงาน TFS ทุกคนรู้สถานะความพร้อมของเครื่องมือวัดได้แบบ Real-time โดยไม่จำเป็นต้องพกพาเอกสารกระดาษ สามารถตรวจสอบวันครบกำหนดสอบเทียบ (Next Due) และเปิดดูใบรับรอง (Certificate) ในรูปแบบ PDF ได้ทันทีผ่านมือถือจากหน้างาน ได้ทุกที่ทุกเวลา เพื่อให้มั่นใจในความแม่นยำของงานวิศวกรรม",
+                man_sec2_title: "2. ความหมายของสถานะ", man_s_green: "🟢 ปกติ: พร้อมใช้งาน (เหลืออายุ > 30 วัน)", man_s_amber: "🟡 ใกล้ครบ: เตรียมส่งสอบเทียบ (เหลือ < 30 วัน)", man_s_red: "🔴 เกินกำหนด: ห้ามใช้งานเด็ดขาด! ต้องส่งสอบเทียบทันที",
+                man_sec3_title: "3. สำหรับแอดมิน (Admin Guide)", man_admin_txt: "แอดมินสามารถ ล็อกอินเพื่อ เพิ่ม/แก้ไข/ลบ ข้อมูลเครื่องมือและจัดการประวัติเพื่อให้ฐานข้อมูลถูกต้องเสมอ"
             },
             en: {
-                title: "CALIBRATION TFS TOOLS",
-                subtitle: "TFS Department Tools Calibration Management System",
-                search_placeholder: "Search Name/ID...",
-                stat_total: "TOTAL", stat_normal: "NORMAL", stat_soon: "DUE SOON", stat_overdue: "OVERDUE",
-                loading: "Connecting to TFS Database...",
-                nav_manual: "MANUAL",
-                btn_add: "ADD", btn_save: "SAVE", btn_cancel: "CANCEL", btn_delete: "DELETE", btn_close: "CLOSE", btn_login: "LOGIN",
-                modal_title_add: "Add Tool", modal_title_edit: "Edit Record",
-                label_photo: "PHOTO", label_attach_photo: "Attach Photo",
-                label_id: "Tool ID *", label_name: "Tool Name *",
-                label_last_date: "Last Calibrated", label_next_date: "Next Due Date *",
-                label_psi: "Person in Charge (PSI) *", label_remarks: "Remarks",
-                label_pdf: "Calibration Certificate (PDF)", label_choose_pdf: "Choose PDF File...",
-                pdf_title: "View Calibration Certificate", admin_login: "Admin Access",
-                status_ready: "Ready to use", status_warning_msg: "Prepare for calibration", status_danger_msg: "DO NOT USE",
-                days_left: "Days left", days_over: "Overdue", history_btn: "History", view_doc_btn: "View Calibration Doc",
-                confirm_delete: "Confirm to delete this tool record?",
-                msg_success: "Data saved successfully", msg_error_pass: "Incorrect password!",
-                manual_modal_title: "System User Manual",
-                // DETAILED MANUAL ENGLISH
-                man_sec1_title: "1. What is this system? (Overview)",
-                man_sec1_body: "CALIBRATION TFS TOOLS is an online tool logbook system that allows TFS teams to monitor tool status in real-time. It eliminates the need for paper records by providing instant access to next due dates and digital certificates (PDF) via mobile devices anywhere, anytime, ensuring engineering accuracy and quality compliance.",
-                man_sec2_title: "2. Status Color Definitions",
-                man_s_green: "🟢 Green (Normal): Ready for use (More than 30 days remaining)",
-                man_s_amber: "🟡 Amber (Due Soon): Expiration near (Less than 30 days remaining), start planning.",
-                man_s_red: "🔴 Red (Overdue): EXPIRED! **DO NOT USE** and send for calibration immediately.",
-                man_sec3_title: "3. Admin Management Guide",
-                man_admin_login: "• Login: Click the shield icon (🛡️) and enter password to enable data management.",
-                man_admin_add: "• Add Tool: Click + ADD to register a new tool with real photos and PDF attachments.",
-                man_admin_edit: "• Edit/Delete: Click EDIT on tool cards to update or remove incorrect entries.",
-                man_admin_history: "• Manage Logs: Admins can view full histories and delete duplicated or wrong logs."
+                title: "CALIBRATION TFS TOOLS", subtitle: "TFS Department Tools Calibration Management System",
+                search_placeholder: "Search Name/ID...", stat_total: "TOTAL", stat_normal: "NORMAL", stat_soon: "DUE SOON", stat_overdue: "OVERDUE", loading: "Connecting Database...", nav_manual: "MANUAL",
+                btn_add: "ADD", btn_save: "SAVE", btn_cancel: "CANCEL", btn_delete: "DELETE TOOL", btn_close: "CLOSE", btn_login: "LOGIN", modal_title_add: "Add Tool", modal_title_edit: "Edit Record",
+                label_photo: "PHOTO", label_attach_photo: "Attach Photo", label_id: "Tool ID *", label_name: "Tool Name *", label_last_date: "Last Calibrated", label_next_date: "Next Due Date *",
+                label_psi: "Person in Charge (PSI) *", label_remarks: "Remarks", label_pdf: "Calibration Certificate (PDF)", label_choose_pdf: "Choose PDF File...", pdf_title: "View Calibration Doc", admin_login: "Admin Access",
+                days_left: "Days left", days_over: "Overdue", history_btn: "History", view_doc_btn: "View Calibration Doc", confirm_delete: "Confirm delete this record?", msg_success: "Saved successfully", msg_error_pass: "Incorrect password!", manual_modal_title: "User Manual",
+                man_sec1_title: "1. What is this? (Overview)", man_sec1_body: "A central digital hub for managing tool calibration lifecycles, ensuring accuracy, quality compliance, and instant certificate access on-site via mobile anywhere, anytime.",
+                man_sec2_title: "2. Status Definitions", man_s_green: "🟢 Normal: Ready (More than 30 days left)", man_s_amber: "🟡 Due Soon: Expiring (< 30 days left)", man_s_red: "🔴 Overdue: EXPIRED! DO NOT USE!",
+                man_sec3_title: "3. Admin Guide", man_admin_txt: "Admins can login to Add, Edit, or Delete tool data and manage history logs to maintain accuracy."
             }
         };
 
         window.onload = () => { fetchData(); updateUI(); };
 
-        function toggleLang() {
-            currentLang = currentLang === 'th' ? 'en' : 'th';
-            updateUI();
-            applyFilter();
-        }
-
         function updateUI() {
-            const lang = currentLang;
-            const t = translations[lang];
-            
-            // UI Content Update
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.innerText = t[key];
-            });
-
+            const t = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (t[key]) el.innerText = t[key]; });
             document.getElementById('searchInput').placeholder = t.search_placeholder;
-            document.getElementById('langBtn').innerText = lang === 'th' ? 'EN' : 'TH';
-
-            // Detailed Manual Content Update
-            const manual = document.getElementById('manualBody');
-            manual.innerHTML = `
-                <section>
-                    <h3 class="font-bold text-blue-700 border-l-4 border-blue-700 pl-2 mb-3 uppercase text-sm">${t.man_sec1_title}</h3>
-                    <p class="pl-2 text-gray-800 leading-relaxed">${t.man_sec1_body}</p>
-                </section>
-                <section>
-                    <h3 class="font-bold text-blue-700 border-l-4 border-blue-700 pl-2 mb-3 uppercase text-sm">${t.man_sec2_title}</h3>
-                    <div class="space-y-2.5 pl-2">
-                        <div class="p-2 bg-emerald-50 rounded border border-emerald-100 flex items-center gap-3">
-                            <p>${t.man_s_green}</p>
-                        </div>
-                        <div class="p-2 bg-amber-50 rounded border border-amber-100 flex items-center gap-3">
-                            <p>${t.man_s_amber}</p>
-                        </div>
-                        <div class="p-2 bg-red-50 rounded border border-red-100 flex items-center gap-3 text-red-700 font-bold">
-                            <p>${t.man_s_red}</p>
-                        </div>
-                    </div>
-                </section>
-                <section class="bg-gray-50 p-4 rounded border border-gray-200">
-                    <h3 class="font-bold text-red-700 mb-3 uppercase text-sm">${t.man_sec3_title}</h3>
-                    <div class="space-y-2 text-[11px] text-gray-700">
-                        <p>${t.man_admin_login}</p>
-                        <p>${t.man_admin_add}</p>
-                        <p>${t.man_admin_edit}</p>
-                        <p>${t.man_admin_history}</p>
-                    </div>
-                </section>
-            `;
+            document.getElementById('langBtn').innerText = currentLang === 'th' ? 'EN' : 'TH';
+            document.getElementById('manualBody').innerHTML = `<section><h3 class="font-bold text-blue-700 border-l-4 border-blue-700 pl-2 mb-3 uppercase text-sm">${t.man_sec1_title}</h3><p class="pl-2">${t.man_sec1_body}</p></section><section><h3 class="font-bold text-blue-700 border-l-4 border-blue-700 pl-2 mb-3 uppercase text-sm">${t.man_sec2_title}</h3><div class="space-y-1.5 pl-2"><p>${t.man_s_green}</p><p>${t.man_s_amber}</p><p class="text-red-600 font-bold">${t.man_s_red}</p></div></section><section class="bg-gray-50 p-4 rounded border"><h3 class="font-bold text-red-700 mb-2 uppercase text-sm">${t.man_sec3_title}</h3><p class="text-[11px]">${t.man_admin_txt}</p></section>`;
         }
 
         async function fetchData() {
@@ -391,38 +287,28 @@
         }
 
         function applyFilter() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const data = allDataLatest.filter(item => (currentFilter === 'all' || item.status === currentFilter) && (item.name.toLowerCase().includes(searchTerm) || item.id.toLowerCase().includes(searchTerm)));
-            renderList(data);
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            renderList(allDataLatest.filter(item => (currentFilter === 'all' || item.status === currentFilter) && (item.name.toLowerCase().includes(term) || item.id.toLowerCase().includes(term))));
         }
 
         function renderList(data) {
             const list = document.getElementById('equipmentList');
             const t = translations[currentLang];
             list.innerHTML = data.length === 0 ? `<div class="col-span-full py-10 text-center text-gray-300 text-[10px] font-bold uppercase tracking-widest">No Items Found</div>` : '';
-            
             data.forEach(item => {
                 let statusColor = item.status === 'overdue' ? 'text-red-600' : (item.status === 'warning' ? 'text-amber-600' : 'text-emerald-600');
                 let statusMsg = item.status === 'overdue' ? t.days_over : t.days_left;
-                let statusText = `${statusMsg} ${Math.abs(item.days)} ${currentLang === 'th' ? 'วัน' : 'Days'}`;
-                
                 list.innerHTML += `
                     <div class="box-3d flex flex-col rounded bg-white overflow-hidden tool-card border-${item.status}">
                         <div class="h-32 w-full relative bg-white border-b border-gray-100">
                             ${item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300 text-[10px] font-bold">NO IMAGE</div>`}
-                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-[8px] font-black uppercase rounded bg-white/95 shadow-sm border ${statusColor} border-current">${statusText}</span></div>
+                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-[8px] font-black uppercase rounded bg-white/95 shadow-sm border ${statusColor} border-current">${statusMsg} ${Math.abs(item.days)} ${currentLang==='th'?'วัน':'Days'}</span></div>
                         </div>
                         <div class="p-3 flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">#${item.id}</span>
-                                <button onclick="viewSingleHistory('${item.id}')" class="text-[8px] text-gray-400 hover:text-gray-900 underline font-bold uppercase">🕒 ${t.history_btn}</button>
-                            </div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">#${item.id}</span><button onclick="viewSingleHistory('${item.id}')" class="text-[8px] text-gray-400 hover:text-gray-900 underline font-bold uppercase">🕒 ${t.history_btn}</button></div>
                             <h3 class="font-black text-gray-800 text-xs leading-tight mb-2 truncate">${item.name}</h3>
                             <div class="mt-auto pt-2 border-t border-gray-50 text-[9px]">
-                                <div class="flex justify-between mb-2">
-                                    <span class="text-gray-500 font-bold uppercase">PSI: ${item.owner || '-'}</span>
-                                    <span class="font-black text-gray-900 font-mono">${formatDate(item.nextDate)}</span>
-                                </div>
+                                <div class="flex justify-between mb-2"><span class="text-gray-500 font-bold uppercase">PSI: ${item.psi || '-'}</span><span class="font-black text-gray-900 font-mono">${formatDate(item.nextDate)}</span></div>
                                 <div class="flex flex-col gap-1">
                                     ${item.pdf ? `<button onclick="openPdfPreview('${item.pdf}')" class="w-full py-1.5 bg-blue-50 text-blue-600 border border-blue-200 px-2 rounded flex items-center justify-center gap-1 transition-colors uppercase font-black tracking-tighter">📄 ${t.view_doc_btn}</button>` : ''}
                                     ${isAdmin ? `<button onclick="editItem('${item.id}', ${item.rowIndex})" class="w-full py-1 bg-gray-800 text-white rounded shadow-sm font-black tracking-tighter">EDIT</button>` : ''}
@@ -433,54 +319,39 @@
             });
         }
 
-        function openPdfPreview(url) {
-            let previewUrl = url;
-            if(url.includes('drive.google.com')){
-                previewUrl = url.replace('/view', '/preview');
-                if(!previewUrl.includes('/preview')) previewUrl += (previewUrl.includes('?') ? '&' : '?') + 'preview';
-            }
-            document.getElementById('pdfFrame').src = previewUrl;
-            document.getElementById('pdfPreviewModal').classList.remove('hidden');
-        }
+        // --- PDF & ADMIN & HISTORY ---
+        function openPdfPreview(url) { let previewUrl = url.includes('drive.google.com') ? url.replace('/view', '/preview') : url; document.getElementById('pdfFrame').src = previewUrl; document.getElementById('pdfPreviewModal').classList.remove('hidden'); }
         function closePdfPreview() { document.getElementById('pdfFrame').src = ""; document.getElementById('pdfPreviewModal').classList.add('hidden'); }
-        function toggleAdmin() { isAdmin ? (isAdmin = false, document.getElementById('adminIndicator').classList.add('hidden'), document.getElementById('addBtn').classList.add('hidden'), renderList(displayData)) : document.getElementById('loginModal').classList.remove('hidden'); }
+        function toggleAdmin() { isAdmin ? (isAdmin = false, document.getElementById('adminIndicator').classList.add('hidden'), document.getElementById('addBtn').classList.add('hidden'), renderList(allDataLatest)) : document.getElementById('loginModal').classList.remove('hidden'); }
         function togglePassVisibility() { const inp = document.getElementById('adminPass'); const eye = document.getElementById('eyeIcon'); inp.type = inp.type === 'password' ? 'text' : 'password'; eye.innerText = inp.type === 'password' ? '👁️' : '🙈'; }
-        function checkLogin() { if (document.getElementById('adminPass').value === 'jiraphong2227') { isAdmin = true; document.getElementById('adminIndicator').classList.remove('hidden'); document.getElementById('addBtn').classList.remove('hidden'); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('adminPass').value = ''; renderList(displayData); } else { alert(translations[currentLang].msg_error_pass); } }
-
+        function checkLogin() { if (document.getElementById('adminPass').value === 'jiraphong2227') { isAdmin = true; document.getElementById('adminIndicator').classList.remove('hidden'); document.getElementById('addBtn').classList.remove('hidden'); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('adminPass').value = ''; renderList(allDataLatest); } else { alert(translations[currentLang].msg_error_pass); } }
         function openGlobalHistory() { renderHistoryPopup(translations[currentLang].history_btn + " (Global)", [...allRecordsRaw].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))); }
-        function viewSingleHistory(id) { renderHistoryPopup(`ID: ${id}`, allDataLatest.find(d => d.id === id).history); }
+        function viewSingleHistory(id) { renderHistoryPopup(`Tool ID: ${id}`, allDataLatest.find(d => d.id === id).history); }
         function renderHistoryPopup(title, data) {
-            const t = translations[currentLang];
             document.getElementById('historyModalTitle').innerText = title;
             const con = document.getElementById('historyContent'); con.innerHTML = '';
-            data.forEach(h => {
-                con.innerHTML += `
-                    <div class="bg-white p-3 rounded border border-gray-200 text-[10px] shadow-sm relative group">
-                        <div class="flex justify-between font-black text-gray-800 uppercase"><span>${formatDate(h.nextDate)}</span><span class="text-[8px] font-normal text-gray-400 italic">${formatDate(h.timestamp)}</span></div>
-                        <div class="flex justify-between mt-1 items-center"><p class="text-gray-600 font-bold uppercase">ID: ${h.id} | PSI: ${h.owner || '-'}</p>${h.pdf ? `<button onclick="openPdfPreview('${h.pdf}')" class="text-blue-500 underline text-[8px] font-bold">Cert View</button>` : ''}</div>
-                        ${isAdmin ? `<div class="mt-2 flex gap-2 border-t pt-2 transition-opacity">
-                            <button onclick="editItem('${h.id}', ${h.rowIndex})" class="bg-gray-100 px-3 py-1 rounded font-black hover:bg-gray-200">✏️</button>
-                            <button onclick="deleteDirectRow(${h.rowIndex})" class="bg-red-50 text-red-600 px-3 py-1 rounded font-black hover:bg-red-100">🗑️</button>
-                        </div>` : ''}
-                    </div>`;
-            });
+            data.forEach(h => { con.innerHTML += `<div class="bg-white p-3 rounded border border-gray-200 text-[10px] shadow-sm relative group"><div class="flex justify-between font-black text-gray-800 uppercase"><span>${formatDate(h.nextDate)}</span><span class="text-[8px] font-normal text-gray-400 italic">${formatDate(h.timestamp)}</span></div><div class="flex justify-between mt-1 items-center"><p class="text-gray-600 font-bold uppercase">ID: ${h.id} | PSI: ${h.psi || '-'}</p>${h.pdf ? `<button onclick="openPdfPreview('${h.pdf}')" class="text-blue-500 underline text-[8px] font-bold">Cert View</button>` : ''}</div>${isAdmin ? `<div class="mt-2 flex gap-2 border-t pt-2 opacity-10 sm:opacity-100 group-hover:opacity-100 transition-opacity"><button onclick="editItem('${h.id}', ${h.rowIndex})" class="bg-gray-100 px-3 py-1 rounded font-black hover:bg-gray-200">✏️</button><button onclick="deleteDirectRow(${h.rowIndex})" class="bg-red-50 text-red-600 px-3 py-1 rounded font-black hover:bg-red-100">🗑️</button></div>` : ''}</div>`; });
             document.getElementById('historyModal').classList.remove('hidden');
         }
-
         async function deleteDirectRow(idx) { if(!confirm(translations[currentLang].confirm_delete)) return; await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', rowIndex: idx }) }); document.getElementById('historyModal').classList.add('hidden'); fetchData(); }
-        function openAddModal() { const t = translations[currentLang]; document.getElementById('modalTitle').innerText = t.modal_title_add; document.getElementById('addForm').reset(); document.getElementById('preview').classList.add('hidden'); document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('pdfName').innerText = t.label_choose_pdf; document.getElementById('inp_id').readOnly = false; document.getElementById('btnDelete').classList.add('hidden'); document.getElementById('rowIndex').value = ""; imageBase64 = null; pdfBase64 = null; document.getElementById('addModalOverlay').classList.remove('hidden'); }
+        
+        // --- ACTIONS ---
+        function openAddModal() { const t = translations[currentLang]; document.getElementById('modalTitle').innerText = t.modal_title_add; document.getElementById('addForm').reset(); document.getElementById('preview').classList.add('hidden'); document.getElementById('uploadPlaceholder').classList.remove('hidden'); document.getElementById('pdfName').innerText = t.label_choose_pdf; document.getElementById('rowIndex').value = ""; imageBase64 = null; pdfBase64 = null; document.getElementById('btnDelete').classList.add('hidden'); document.getElementById('addModalOverlay').classList.remove('hidden'); }
         function editItem(id, idx) { const item = allRecordsRaw.find(r => r.rowIndex == idx); const t = translations[currentLang]; document.getElementById('modalTitle').innerText = t.modal_title_edit; document.getElementById('rowIndex').value = idx; document.getElementById('inp_id').value = item.id; document.getElementById('inp_name').value = item.name; document.getElementById('inp_last').value = item.lastDate; document.getElementById('inp_next').value = item.nextDate; document.getElementById('inp_psi').value = item.psi; document.getElementById('inp_rem').value = item.remarks; if (item.image) { document.getElementById('preview').src = item.image; document.getElementById('preview').classList.remove('hidden'); document.getElementById('uploadPlaceholder').classList.add('hidden'); } document.getElementById('btnDelete').classList.remove('hidden'); document.getElementById('addModalOverlay').classList.remove('hidden'); }
         async function submitData(e) { e.preventDefault(); const btn = document.getElementById('submitBtn'); btn.innerText = "SAVING..."; btn.disabled = true; const payload = { action: document.getElementById('rowIndex').value ? 'edit' : 'add', rowIndex: document.getElementById('rowIndex').value, id: document.getElementById('inp_id').value, name: document.getElementById('inp_name').value, lastDate: document.getElementById('inp_last').value, nextDate: document.getElementById('inp_next').value, psi: document.getElementById('inp_psi').value, remarks: document.getElementById('inp_rem').value, imageBase64: imageBase64, pdfBase64: pdfBase64, currentImage: document.getElementById('preview').src }; try { await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); closeAddModal(); fetchData(); alert(translations[currentLang].msg_success); } catch (err) { alert(err.message); } finally { btn.innerText = translations[currentLang].btn_save; btn.disabled = false; } }
         async function deleteItem() { if(!confirm(translations[currentLang].confirm_delete)) return; await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', rowIndex: document.getElementById('rowIndex').value }) }); closeAddModal(); fetchData(); }
+        
+        // --- UTILS ---
         function filterBySearch() { applyFilter(); }
         function formatDate(d) { if(!d) return "-"; const date = new Date(d); return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`; }
         function updateStats() { document.getElementById('statTotal').innerText = allDataLatest.length; document.getElementById('statNormal').innerText = allDataLatest.filter(d => d.status === 'normal').length; document.getElementById('statWarning').innerText = allDataLatest.filter(d => d.status === 'warning').length; document.getElementById('statOverdue').innerText = allDataLatest.filter(d => d.status === 'overdue').length; }
+        function closeAddModal() { document.getElementById('addModalOverlay').classList.add('hidden'); }
         function openHelpModal() { document.getElementById('helpModalOverlay').classList.remove('hidden'); }
         function closeHelpModal() { document.getElementById('helpModalOverlay').classList.add('hidden'); }
-        function closeAddModal() { document.getElementById('addModalOverlay').classList.add('hidden'); }
         function handleImage(i) { fileToBase64(i, (b) => { imageBase64 = b; document.getElementById('preview').src = b; document.getElementById('preview').classList.remove('hidden'); document.getElementById('uploadPlaceholder').classList.add('hidden'); }); }
         function handlePdf(i) { if(i.files[0].size > 5*1024*1024) return alert("FILE > 5MB"); document.getElementById('pdfName').innerText = i.files[0].name; fileToBase64(i, (b) => pdfBase64 = b); }
         function fileToBase64(inp, cb) { const fr = new FileReader(); fr.onload = (e) => cb(e.target.result); fr.readAsDataURL(inp.files[0]); }
+        function toggleLang() { currentLang = currentLang === 'th' ? 'en' : 'th'; updateUI(); applyFilter(); }
     </script>
 </body>
 </html>
