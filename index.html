@@ -1,411 +1,540 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CALIBRATION TFS TOOLS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
-        :root { --brand-red: #d52b1e; --brand-black: #1a1a1a; }
+        * { font-family: 'Kanit', sans-serif; }
+        :root { --brand-red: #D32F2F; --brand-dark: #B71C1C; }
 
-        /* Schindler Theme Elements */
-        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 6px 6px 0px 0px #059669; transition: 0.2s; }
-        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 6px 6px 0px 0px #d97706; transition: 0.2s; }
-        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 6px 6px 0px 0px #dc2626; transition: 0.2s; }
-        .box-normal:hover, .box-warning:hover, .box-overdue:hover { transform: translate(-2px, -2px); }
+        body { background-color: #f3f4f6; }
 
-        .btn-3d { transition: 0.15s; box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2); }
-        .btn-3d:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.2); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #d52b1e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
+        /* Theme Classes */
+        .bg-tfs-red { background-color: var(--brand-red); }
+        .text-tfs-red { color: var(--brand-red); }
+        .border-tfs-red { border-color: var(--brand-red); }
+        
+        .btn-primary {
+            background-color: var(--brand-red); color: white;
+            transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(211, 47, 47, 0.4);
+        }
+        .btn-primary:hover { background-color: var(--brand-dark); transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
 
-        /* Manual Styling */
-        .manual-section h3 { font-weight: 800; color: var(--brand-red); margin-top: 1rem; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .manual-section ul { list-style: disc; padding-left: 1.25rem; margin-top: 0.5rem; }
+        /* Card Styles */
+        .tool-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        .tool-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+        /* Status Badges */
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-normal { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .status-warning { background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .status-overdue { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
+        .modal-enter { animation: modalIn 0.2s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-gray-800">
+<body class="h-full text-gray-800">
 
-    <div id="app" class="min-h-full flex flex-col max-w-7xl mx-auto">
-        <!-- HEADER -->
-        <header class="bg-white border-b-4 border-[--brand-red] shadow-sm sticky top-0 z-40">
-            <div class="px-4 py-4">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="flex items-start gap-3">
-                        <div class="w-12 h-12 min-w-[3rem] bg-[--brand-red] text-white flex items-center justify-center font-bold text-2xl shadow-[3px_3px_0px_0px_#1a1a1a]">S</div>
-                        <div class="flex flex-col justify-center h-full pt-0.5">
-                            <h1 class="text-lg md:text-xl font-black leading-tight tracking-tight uppercase" data-i18n="title">CALIBRATION TFS TOOLS</h1>
-                            <p class="text-[10px] sm:text-xs text-gray-500 mt-1 font-medium leading-tight max-w-[200px] sm:max-w-none" data-i18n="subtitle">ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="openHelpModal()" class="shrink-0 px-3 py-1 bg-white border border-gray-300 text-gray-600 rounded font-bold text-[10px] hover:bg-gray-100 flex items-center gap-1 shadow-sm">
-                            <span>📘</span> <span id="manualBtnText">คู่มือ</span>
-                        </button>
-                        <button onclick="toggleLang()" class="shrink-0 px-2 py-1 bg-gray-800 text-white border border-gray-800 rounded font-bold text-[10px] transition-colors" id="langBtn">TH / EN</button>
-                    </div>
+    <div id="app" class="min-h-full flex flex-col max-w-lg mx-auto bg-gray-50 min-h-screen relative shadow-2xl">
+        
+        <!-- HEADER (Style Image 3) -->
+        <header class="bg-tfs-red text-white px-5 py-4 sticky top-0 z-40 shadow-md">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">TFS TOOLS</h1>
+                    <p class="text-xs text-red-100 opacity-90">ระบบบริหารจัดการการสอบเทียบ</p>
                 </div>
-                
-                <div class="border-t pt-3 flex justify-end">
-                    <button onclick="openAddModal()" class="w-full sm:w-auto px-6 py-3 bg-[--brand-red] text-white font-bold text-sm btn-3d rounded flex justify-center items-center gap-2">
-                        <span class="text-lg leading-none">+</span> <span data-i18n="btn_add">ADD TOOL</span>
+                <div class="flex gap-3">
+                    <button onclick="openManual()" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                     </button>
+                    <button onclick="toggleAdmin()" id="adminBtn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                        <span id="adminIndicator" class="absolute top-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border border-red-600 hidden"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Bar -->
+            <div class="flex mt-4 gap-2 text-center">
+                <div class="flex-1 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
+                    <p class="text-[10px] opacity-75">ทั้งหมด</p>
+                    <p class="text-lg font-bold" id="statTotal">-</p>
+                </div>
+                <div class="flex-1 bg-green-500/20 rounded-lg p-2 backdrop-blur-sm border border-green-400/30">
+                    <p class="text-[10px] text-green-100">ปกติ</p>
+                    <p class="text-lg font-bold text-green-100" id="statNormal">-</p>
+                </div>
+                <div class="flex-1 bg-red-500/20 rounded-lg p-2 backdrop-blur-sm border border-red-400/30">
+                    <p class="text-[10px] text-red-100">แจ้งเตือน</p>
+                    <p class="text-lg font-bold text-red-100" id="statAlert">-</p>
                 </div>
             </div>
         </header>
 
-        <!-- CONTENT -->
-        <main class="p-4 pb-20 space-y-8">
-            
-            <!-- SCHINDLER THEMED ERROR DISPLAY -->
-            <div id="errorState" class="hidden animate-slide-down mb-6">
-                <div class="bg-white border-l-8 border-[--brand-red] shadow-lg rounded-r-lg p-6 flex flex-col gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-[--brand-red] font-bold text-xl">!</div>
-                        <h3 class="font-black text-lg text-gray-900 uppercase">System Notification</h3>
-                    </div>
-                    <p class="text-sm text-gray-600 ml-11" id="errorMsg">Unknown Error</p>
-                    <div class="ml-11 mt-2">
-                        <button onclick="window.location.reload()" class="px-4 py-2 bg-gray-900 text-white text-xs font-bold uppercase tracking-wider rounded hover:bg-black transition-colors">
-                            RELOAD SYSTEM / รีโหลด
-                        </button>
-                    </div>
-                </div>
+        <!-- SEARCH & FILTER -->
+        <div class="px-4 pt-4 pb-2 sticky top-[130px] z-30 bg-gray-50/95 backdrop-blur">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="ค้นหาชื่อ หรือ รหัส..." class="w-full pl-10 pr-4 py-3 rounded-xl border-none shadow-sm focus:ring-2 focus:ring-red-500 text-sm bg-white" onkeyup="filterData()">
+                <svg class="absolute left-3 top-3.5 text-gray-400" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
+            <!-- Admin Add Button -->
+            <button onclick="openAddModal()" id="addBtn" class="hidden w-full mt-3 btn-primary py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                เพิ่มอุปกรณ์ใหม่
+            </button>
+        </div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 border-2 border-gray-800 shadow-[4px_4px_0px_0px_#1f2937] rounded"><p class="text-[10px] font-black text-gray-400" data-i18n="stat_total">TOTAL</p><h3 id="statTotal" class="text-3xl font-black text-gray-800">...</h3></div>
-                <div class="bg-white p-4 border-2 border-emerald-500 shadow-[4px_4px_0px_0px_#10b981] rounded"><p class="text-[10px] font-black text-emerald-600/60" data-i18n="stat_normal">NORMAL</p><h3 id="statNormal" class="text-3xl font-black text-emerald-600">...</h3></div>
-                <div class="bg-white p-4 border-2 border-amber-500 shadow-[4px_4px_0px_0px_#f59e0b] rounded"><p class="text-[10px] font-black text-amber-600/60" data-i18n="stat_soon">DUE SOON</p><h3 id="statWarning" class="text-3xl font-black text-amber-500">...</h3></div>
-                <div class="bg-white p-4 border-2 border-red-500 shadow-[4px_4px_0px_0px_#ef4444] rounded"><p class="text-[10px] font-black text-red-600/60" data-i18n="stat_overdue">OVERDUE</p><h3 id="statOverdue" class="text-3xl font-black text-red-600">...</h3></div>
-            </div>
-
+        <!-- CONTENT LIST -->
+        <main class="flex-1 px-4 pb-24 space-y-4" id="equipmentList">
             <!-- Loading -->
-            <div id="loadingState" class="flex flex-col items-center justify-center py-10">
-                <div class="loader mb-2"></div>
-                <p class="text-xs text-gray-400 animate-pulse">Connecting to Server...</p>
+            <div id="loadingState" class="flex flex-col items-center justify-center py-20 text-gray-400">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mb-3"></div>
+                <p class="text-sm">กำลังโหลดข้อมูล...</p>
             </div>
-
-            <!-- List -->
-            <div id="equipmentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
         </main>
+
     </div>
 
-    <!-- ADD MODAL -->
-    <div id="addModalOverlay" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl rounded-lg relative border-t-8 border-[--brand-red]">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 class="text-2xl font-black uppercase tracking-tight text-gray-900" data-i18n="modal_title">ADD TOOL</h2>
-                    <button onclick="closeAddModal()" class="text-gray-400 hover:text-[--brand-red] text-3xl font-bold leading-none">&times;</button>
-                </div>
-                
-                <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
-                    <!-- Photo Input (UPDATED: Removed capture attribute to allow gallery) -->
-                    <div class="w-full">
-                        <label class="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider" data-i18n="label_photo">PHOTO</label>
-                        <label class="block w-full h-48 bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-500 rounded-lg cursor-pointer relative flex items-center justify-center overflow-hidden transition-colors">
-                            <img id="preview" class="absolute w-full h-full object-cover hidden">
-                            <div id="uploadPlaceholder" class="text-center">
-                                <span class="text-4xl text-gray-300">🖼️</span>
-                                <p class="text-xs text-gray-500 mt-2 font-bold" data-i18n="tap_camera">ATTACH PHOTO</p>
+    <!-- MODALS -->
+
+    <!-- 1. LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl modal-enter text-center">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🔒</div>
+            <h3 class="text-lg font-bold mb-1">Admin Login</h3>
+            <p class="text-xs text-gray-500 mb-4">กรุณาใส่รหัสผ่านเพื่อจัดการข้อมูล</p>
+            <input type="password" id="adminPass" class="w-full border border-gray-300 rounded-lg p-2 text-center mb-4 focus:ring-2 focus:ring-red-500 outline-none" placeholder="Password">
+            <div class="flex gap-2">
+                <button onclick="closeModal('loginModal')" class="flex-1 py-2 text-gray-500 text-sm font-bold">ยกเลิก</button>
+                <button onclick="checkLogin()" class="flex-1 py-2 bg-tfs-red text-white rounded-lg text-sm font-bold shadow-lg">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ADD/EDIT TOOL MODAL -->
+    <div id="toolModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md h-[90vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col modal-enter relative">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h2 class="text-xl font-bold text-gray-800" id="modalTitle">เพิ่มอุปกรณ์</h2>
+                <button onclick="closeModal('toolModal')" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                <form id="toolForm" onsubmit="submitData(event)">
+                    <input type="hidden" name="id_ref" id="id_ref"> <!-- For Edit reference -->
+                    
+                    <!-- Photo -->
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">รูปภาพอุปกรณ์</label>
+                        <label class="block w-full h-48 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-red-400 transition relative overflow-hidden group">
+                            <img id="preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                            <div id="uploadPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-400 group-hover:text-red-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <span class="text-xs mt-2 font-medium">แตะเพื่อเลือกรูป (คลังภาพ/กล้อง)</span>
                             </div>
-                            <!-- FIXED: Removed capture="environment" to allow Gallery selection -->
                             <input type="file" id="imgInput" accept="image/*" class="hidden" onchange="handleImage(this)">
                         </label>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
-                        <div><label class="text-xs font-bold text-gray-500">NAME TOOL *</label><input type="text" name="name" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
+                        <div><label class="text-xs font-bold text-gray-500">รหัสอุปกรณ์ (ID)</label><input type="text" name="id" id="inp_id" required class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-red-500 outline-none"></div>
+                        <div><label class="text-xs font-bold text-gray-500">ชื่ออุปกรณ์</label><input type="text" name="name" id="inp_name" required class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-red-500 outline-none"></div>
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-xs font-bold text-gray-500">LAST DATE</label><input type="date" name="lastDate" class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50"></div>
-                        <div><label class="text-xs font-bold text-gray-500">NEXT DUE *</label><input type="date" name="nextDate" required class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 border-red-200"></div>
-                    </div>
-                    
-                    <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-                    <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
 
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CALIBRATION DOC (PDF)</label>
-                        <label class="flex items-center justify-center w-full py-3 px-4 border border-dashed border-gray-400 rounded cursor-pointer hover:bg-gray-50 transition-colors">
-                            <span class="text-xl mr-2">📎</span>
-                            <span id="pdfName" class="text-xs text-gray-600 font-medium truncate">Choose PDF File...</span>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div><label class="text-xs font-bold text-gray-500">สอบเทียบล่าสุด</label><input type="date" name="lastDate" id="inp_last" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm"></div>
+                        <div><label class="text-xs font-bold text-gray-500 text-red-600">ครบกำหนด *</label><input type="date" name="nextDate" id="inp_next" required class="w-full bg-white border border-red-200 p-2.5 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-red-500"></div>
+                    </div>
+
+                    <div class="mt-4"><label class="text-xs font-bold text-gray-500">ผู้รับผิดชอบ (PSI)</label><input type="text" name="psi" id="inp_psi" required class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm"></div>
+                    <div class="mt-4"><label class="text-xs font-bold text-gray-500">หมายเหตุ</label><input type="text" name="remarks" id="inp_remarks" class="w-full bg-gray-50 border border-gray-200 p-2.5 rounded-lg text-sm"></div>
+
+                    <!-- PDF -->
+                    <div class="mt-4">
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">แนบเอกสาร Calibration (PDF)</label>
+                        <label class="flex items-center w-full p-3 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                            <span class="text-xl mr-3">📄</span>
+                            <span id="pdfName" class="text-xs text-blue-700 font-medium truncate">เลือกไฟล์ PDF...</span>
                             <input type="file" id="pdfInput" accept="application/pdf" class="hidden" onchange="handlePdf(this)">
                         </label>
                     </div>
-
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="closeAddModal()" class="flex-1 py-3 border border-gray-300 font-bold text-xs uppercase tracking-wider hover:bg-gray-100 rounded" data-i18n="btn_cancel">CANCEL</button>
-                        <button type="submit" id="submitBtn" class="flex-1 py-3 bg-[--brand-red] text-white font-bold text-xs uppercase tracking-wider btn-3d rounded hover:bg-[#b91c1c]" data-i18n="btn_save">SAVE</button>
-                    </div>
                 </form>
             </div>
-        </div>
-    </div>
 
-    <!-- ALERT POPUP (Schindler Theme) -->
-    <div id="alertModalOverlay" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl rounded-lg border-t-8 border-[--brand-red] animate-slide-down">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-start">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-[--brand-red] text-xl font-bold">!</div>
-                    <div>
-                        <h2 class="text-xl font-black uppercase tracking-tight text-gray-900" data-i18n="alert_title">ATTENTION REQUIRED</h2>
-                        <p class="text-xs text-gray-500 mt-1" data-i18n="alert_subtitle">รายการต้องตรวจสอบ / ดำเนินการ</p>
-                    </div>
-                </div>
-                <button onclick="closeAlertModal()" class="text-gray-400 hover:text-black font-bold text-xl">&times;</button>
-            </div>
-            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer"></div>
-            <div class="p-4 border-t border-gray-200 bg-white">
-                <button onclick="closeAlertModal()" class="w-full py-3 bg-[--brand-black] text-white font-bold text-sm uppercase tracking-wider btn-3d rounded hover:bg-black">
-                    ACKNOWLEDGE / รับทราบ
-                </button>
+            <!-- Footer -->
+            <div class="p-4 border-t bg-gray-50 rounded-b-2xl flex gap-3">
+                <button onclick="closeModal('toolModal')" class="flex-1 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-xl text-sm">ยกเลิก</button>
+                <button onclick="document.getElementById('toolForm').dispatchEvent(new Event('submit'))" id="submitBtn" class="flex-1 py-3 bg-tfs-red text-white font-bold rounded-xl text-sm shadow-lg">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 
-    <!-- HELP/MANUAL MODAL -->
-    <div id="helpModalOverlay" class="fixed inset-0 bg-black/80 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl rounded-lg relative border-t-8 border-blue-600">
-            <div class="p-5 flex justify-between items-center border-b sticky top-0 bg-white z-10">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">📘</span>
-                    <h2 class="text-xl font-black uppercase tracking-tight text-gray-900" id="manualTitle">USER MANUAL</h2>
-                </div>
-                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-black font-bold text-2xl">&times;</button>
+    <!-- 3. PDF VIEWER MODAL -->
+    <div id="pdfModal" class="fixed inset-0 bg-black/80 z-[70] hidden flex items-center justify-center p-2 backdrop-blur-sm">
+        <div class="bg-white w-full h-full max-w-4xl max-h-[90vh] rounded-lg shadow-2xl flex flex-col relative">
+            <div class="bg-gray-800 text-white p-3 flex justify-between items-center rounded-t-lg">
+                <span class="font-bold text-sm">📄 Document Viewer</span>
+                <button onclick="closeModal('pdfModal')" class="text-gray-400 hover:text-white text-xl font-bold">✕</button>
             </div>
-            <div class="p-6 space-y-6 manual-section">
-                <div id="manualContentTH">
-                    <h3>1. ภาพรวมระบบ (Overview)</h3>
-                    <p>ระบบ <strong>CALIBRATION TFS TOOLS</strong> ช่วยบริหารจัดการวันครบกำหนดสอบเทียบเครื่องมือวัดในแผนก TFS โดยจะคำนวณสถานะอัตโนมัติและแจ้งเตือนเมื่อถึงกำหนด</p>
-                    <h3>2. ความหมายของสถานะ (Status Colors)</h3>
-                    <ul>
-                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>ปกติ (Normal):</strong> เหลือเวลามากกว่า 30 วัน</li>
-                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>ใกล้ครบ (Due Soon):</strong> เหลือเวลาน้อยกว่า 30 วัน</li>
-                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>เกินกำหนด (Overdue):</strong> เลยวันสอบเทียบแล้ว</li>
-                    </ul>
-                    <h3>3. การเพิ่มอุปกรณ์ (Add Tool)</h3>
-                    <ul>
-                        <li>กดปุ่ม <strong>"+ ADD TOOL"</strong> ด้านบน</li>
-                        <li><strong>รูปถ่าย (Photo):</strong> แตะที่กรอบเพื่อเลือกรูปจากคลังภาพหรือถ่ายใหม่</li>
-                        <li>กรอกข้อมูลให้ครบถ้วน โดยเฉพาะ <strong>Next Due (วันครบกำหนด)</strong></li>
-                        <li><strong>แนบเอกสาร Calibration:</strong> เลือกไฟล์ PDF (ขนาดไม่เกิน 5MB)</li>
-                        <li>กด <strong>SAVE</strong> และรอจนขึ้น Success</li>
-                    </ul>
-                    <h3>4. การดูเอกสาร</h3>
-                    <p>กดปุ่ม <strong>📄 ดูเอกสาร Calibration</strong> ที่การ์ดรายการ (ปุ่มจะขึ้นเฉพาะรายการที่มีไฟล์แนบ)</p>
+            <div class="flex-1 bg-gray-100 relative">
+                <iframe id="pdfFrame" src="" class="w-full h-full border-none"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. HISTORY MODAL -->
+    <div id="historyModal" class="fixed inset-0 bg-black/60 z-[65] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md max-h-[80vh] rounded-2xl shadow-xl flex flex-col">
+            <div class="p-4 border-b bg-gray-50 rounded-t-2xl flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-800">ประวัติการสอบเทียบ</h3>
+                <button onclick="closeModal('historyModal')" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+            <div id="historyContent" class="p-4 overflow-y-auto flex-1 space-y-3">
+                <!-- History Items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. UNIFIED POPUP ALERT -->
+    <div id="alertPopup" class="fixed top-4 left-4 right-4 z-[80] hidden animate-fade-in">
+        <div class="bg-white border-l-4 border-tfs-red shadow-2xl rounded-r-lg p-4 flex items-start gap-3 max-w-md mx-auto">
+            <div class="text-2xl">⚠️</div>
+            <div class="flex-1">
+                <h4 class="font-bold text-gray-800" id="alertTitle">แจ้งเตือน</h4>
+                <p class="text-sm text-gray-600" id="alertMsg">รายละเอียด...</p>
+            </div>
+            <button onclick="document.getElementById('alertPopup').classList.add('hidden')" class="text-gray-400">&times;</button>
+        </div>
+    </div>
+
+    <!-- 6. USER MANUAL MODAL -->
+    <div id="manualModal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="bg-tfs-red p-4 flex justify-between items-center text-white">
+                <h2 class="font-bold text-lg">📘 คู่มือการใช้งาน</h2>
+                <button onclick="closeModal('manualModal')" class="text-white/80 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto text-sm text-gray-700 space-y-4">
+                <div>
+                    <h3 class="font-bold text-tfs-red mb-1">1. การเข้าถึง</h3>
+                    <p>ระบบนี้ใช้สำหรับตรวจสอบวันครบกำหนดสอบเทียบเครื่องมือวัด ทุกคนสามารถดูข้อมูลได้ แต่การแก้ไขต้องใช้รหัส Admin</p>
                 </div>
-                <div id="manualContentEN" class="hidden">
-                    <h3>1. System Overview</h3>
-                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates. It automatically alerts users of upcoming or overdue items.</p>
-                    <h3>2. Status Indicators</h3>
-                    <ul>
-                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>Normal:</strong> > 30 days remaining.</li>
-                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>Due Soon:</strong> <= 30 days remaining.</li>
-                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>Overdue:</strong> Calibration date passed.</li>
+                <div>
+                    <h3 class="font-bold text-tfs-red mb-1">2. สถานะสี</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><span class="text-green-600 font-bold">สีเขียว:</span> ปกติ (เหลือ > 30 วัน)</li>
+                        <li><span class="text-yellow-600 font-bold">สีเหลือง:</span> ใกล้ครบ (เหลือ < 30 วัน)</li>
+                        <li><span class="text-red-600 font-bold">สีแดง:</span> เกินกำหนด (ต้องดำเนินการทันที)</li>
                     </ul>
-                    <h3>3. Adding a Tool</h3>
-                    <ul>
-                        <li>Click <strong>"+ ADD TOOL"</strong>.</li>
-                        <li><strong>Photo:</strong> Tap to select image from gallery or camera.</li>
-                        <li>Fill in details, especially <strong>Next Due</strong>.</li>
-                        <li><strong>Attach PDF:</strong> Upload Calibration Certificate.</li>
-                        <li>Click <strong>SAVE</strong>.</li>
+                </div>
+                <div>
+                    <h3 class="font-bold text-tfs-red mb-1">3. ฟีเจอร์ต่างๆ</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>📄 ดูเอกสาร:</strong> กดปุ่มสีฟ้าเพื่อดูไฟล์ PDF ใบรับรอง</li>
+                        <li><strong>🕒 ประวัติ:</strong> กดปุ่มนาฬิกาเพื่อดูประวัติย้อนหลัง</li>
+                        <li><strong>🔒 Admin:</strong> กดปุ่มรูปโล่และใส่รหัสเพื่อเพิ่ม/แก้ไขข้อมูล</li>
                     </ul>
                 </div>
             </div>
-            <div class="p-4 border-t bg-gray-50 text-center">
-                <button onclick="closeHelpModal()" class="px-8 py-2 bg-gray-800 text-white font-bold rounded hover:bg-black btn-3d">CLOSE / ปิด</button>
+            <div class="p-4 bg-gray-50 text-center border-t">
+                <button onclick="closeModal('manualModal')" class="px-6 py-2 bg-gray-800 text-white rounded-lg text-sm">ปิดหน้าต่าง</button>
             </div>
         </div>
     </div>
 
     <script>
-        // **************************************************************************
-        // URL ของคุณจากการ Deploy (New Deployment > Web App > Anyone)
+        // *** CONFIG ***
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVKnhJyBqOn8Pk9lfITsEVa3lrMUEC-lvu76V77luxZQa_WagUZg5uaEJrgdY9kGE0/exec';
-        // **************************************************************************
-
-        let currentLang = 'th';
-        let rawData = [];
+        
+        // State
+        let allData = [];
+        let displayData = [];
+        let isAdmin = false;
         let imageBase64 = null;
         let pdfBase64 = null;
 
-        const translations = {
-            en: {
-                title: "CALIBRATION TFS TOOLS",
-                subtitle: "Tools Calibration Management & Alert System - TFS Dept.",
-                btn_add: "ADD TOOL", stat_total: "TOTAL", stat_normal: "NORMAL",
-                stat_soon: "DUE SOON", stat_overdue: "OVERDUE", modal_title: "ADD TOOL", label_photo: "PHOTO",
-                tap_camera: "ATTACH PHOTO", btn_cancel: "CANCEL", btn_save: "SAVE", status_over: "Overdue", 
-                status_left: "Days Left", alert_title: "ATTENTION REQUIRED", alert_subtitle: "Items due within 30 days or overdue",
-                label_remarks: "REMARKS", label_pdf: "ATTACH CALIBRATION DOC (PDF)", view_pdf: "VIEW CALIBRATION", manual_btn: "MANUAL"
-            },
-            th: {
-                title: "CALIBRATION TFS TOOLS",
-                subtitle: "ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS",
-                btn_add: "เพิ่มอุปกรณ์", stat_total: "ทั้งหมด", stat_normal: "ปกติ",
-                stat_soon: "ใกล้ครบ", stat_overdue: "เกินกำหนด", modal_title: "เพิ่มอุปกรณ์", label_photo: "รูปถ่าย",
-                tap_camera: "แนบรูป", btn_cancel: "ยกเลิก", btn_save: "บันทึก", status_over: "เกินกำหนด", 
-                status_left: "เหลืออีก", alert_title: "รายการต้องตรวจสอบ", alert_subtitle: "รายการที่เกินกำหนด หรือครบกำหนดใน 30 วัน",
-                label_remarks: "หมายเหตุ", label_pdf: "แนบเอกสาร Calibration (PDF)", view_pdf: "ดูเอกสาร Calibration", manual_btn: "คู่มือ"
-            }
+        // Init
+        window.onload = () => {
+            fetchData();
         };
 
-        window.onload = () => { fetchData(); updateUI(); };
-
-        function toggleLang() {
-            currentLang = currentLang === 'en' ? 'th' : 'en';
-            updateUI();
-            renderList();
-        }
-
-        function updateUI() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                if(translations[currentLang][key]) el.innerText = translations[currentLang][key];
-            });
-            document.getElementById('langBtn').innerText = currentLang === 'en' ? "EN" : "TH";
-            document.getElementById('manualBtnText').innerText = translations[currentLang].manual_btn;
-
-            const manualTH = document.getElementById('manualContentTH');
-            const manualEN = document.getElementById('manualContentEN');
-            const manualTitle = document.getElementById('manualTitle');
-
-            if (currentLang === 'th') {
-                manualTH.classList.remove('hidden'); manualEN.classList.add('hidden'); manualTitle.innerText = "คู่มือการใช้งาน";
-            } else {
-                manualTH.classList.add('hidden'); manualEN.classList.remove('hidden'); manualTitle.innerText = "USER MANUAL";
-            }
-        }
+        // --- CORE FUNCTIONS ---
 
         async function fetchData() {
-            const loading = document.getElementById('loadingState');
-            const errorDiv = document.getElementById('errorState');
-            const errorMsg = document.getElementById('errorMsg');
-
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                const res = await fetch(GOOGLE_SCRIPT_URL);
+                if (!res.ok) throw new Error("Connection Failed");
+                const text = await res.text();
+                const json = JSON.parse(text);
                 
-                const text = await response.text();
-                try {
-                    rawData = JSON.parse(text);
-                } catch (e) {
-                    throw new Error("Invalid Data Format. Script Deployment Error?");
-                }
-
-                if (rawData.status === 'error') throw new Error(rawData.message);
-                if (!Array.isArray(rawData)) rawData = []; // Handle empty sheet
-
-                rawData = rawData.map(item => {
-                    const next = new Date(item.nextDate);
-                    const today = new Date(); today.setHours(0,0,0,0);
-                    const diffTime = next - today;
-                    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    let status = 'normal';
-                    if(days < 0) status = 'overdue';
-                    else if(days <= 30) status = 'warning';
-                    return { ...item, days, status };
-                });
-
-                updateStats();
-                renderList();
-                checkDailyAlerts(rawData);
-                loading.classList.add('hidden');
-                document.getElementById('equipmentList').classList.remove('hidden');
-
-            } catch (error) {
-                console.error(error);
-                loading.classList.add('hidden');
-                errorDiv.classList.remove('hidden');
-                errorMsg.innerText = error.message;
+                if (json.status === 'error') throw new Error(json.message);
+                
+                // Process Data (Group by ID for History)
+                processData(Array.isArray(json) ? json : []);
+                
+            } catch (err) {
+                console.error(err);
+                showAlert("เกิดข้อผิดพลาด", "ไม่สามารถดึงข้อมูลได้: " + err.message);
+                document.getElementById('loadingState').innerHTML = `<p class="text-red-500">Connection Error</p><button onclick="location.reload()" class="mt-2 text-blue-500 underline">Reload</button>`;
             }
         }
 
-        function renderList() {
-            const list = document.getElementById('equipmentList');
-            list.innerHTML = '';
-            rawData.sort((a, b) => {
-                const p = { overdue: 0, warning: 1, normal: 2 };
-                return p[a.status] - p[b.status];
+        function processData(data) {
+            // Sort by Date Descending
+            data.sort((a, b) => new Date(b.nextDate) - new Date(a.nextDate));
+            
+            // Group History: Create Map of ID -> Array of Records
+            const grouped = {};
+            data.forEach(item => {
+                if(!grouped[item.id]) grouped[item.id] = [];
+                grouped[item.id].push(item);
             });
 
-            rawData.forEach(item => {
-                let boxClass = 'box-normal', textColor = 'text-emerald-700', badgeClass = 'bg-emerald-100 text-emerald-800';
-                
-                if (item.status === 'overdue') { boxClass = 'box-overdue'; textColor = 'text-red-700'; badgeClass = 'bg-red-100 text-red-800'; } 
-                else if (item.status === 'warning') { boxClass = 'box-warning'; textColor = 'text-amber-700'; badgeClass = 'bg-amber-100 text-amber-800'; }
-
-                const statusText = item.status === 'overdue' ? `${Math.abs(item.days)} ${translations[currentLang].status_over}` : `${item.days} ${translations[currentLang].status_left}`;
-                const imgHTML = item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs">NO IMAGE</div>`;
-                const pdfButton = item.pdf ? `<a href="${item.pdf}" target="_blank" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 flex items-center gap-1 mt-1">📄 ${translations[currentLang].view_pdf}</a>` : '';
-                const remarksText = item.remarks ? `<p class="text-xs text-gray-500 italic mt-1 border-t pt-1">Note: ${item.remarks}</p>` : '';
-
-                list.innerHTML += `
-                    <div class="${boxClass} flex flex-col group h-full rounded-lg overflow-hidden relative">
-                        <div class="h-48 w-full border-b-2 border-gray-100 relative bg-white">${imgHTML}
-                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-xs font-black uppercase tracking-wide rounded border ${badgeClass} shadow-sm">${statusText}</span></div>
-                        </div>
-                        <div class="p-5 flex-1 flex flex-col">
-                            <div class="flex justify-between items-start mb-1"><span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID: ${item.id}</span>${pdfButton}</div>
-                            <h3 class="font-bold text-xl leading-tight mb-2 text-gray-900">${item.name}</h3>
-                            ${remarksText}
-                            <div class="mt-auto pt-4 border-t border-gray-200/50 text-sm flex justify-between items-center">
-                                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-wider">PSI</p><p class="font-bold text-gray-700">${item.owner}</p></div>
-                                <div class="text-right"><p class="text-[10px] text-gray-400 font-black uppercase tracking-wider">DUE</p><p class="font-bold font-mono ${textColor}">${formatDate(item.nextDate)}</p></div>
-                            </div>
-                        </div>
-                    </div>`;
+            // Flatten to get only latest items for Main View
+            displayData = Object.values(grouped).map(group => {
+                const latest = group[0]; // First one is latest due to sort
+                // Calculate Status
+                const diff = Math.ceil((new Date(latest.nextDate) - new Date()) / (1000 * 60 * 60 * 24));
+                latest.days = diff;
+                latest.status = diff < 0 ? 'overdue' : (diff <= 30 ? 'warning' : 'normal');
+                latest.history = group; // Attach history array
+                return latest;
             });
+
+            // Sort Main View (Overdue First)
+            displayData.sort((a, b) => {
+                const priority = { overdue: 0, warning: 1, normal: 2 };
+                return priority[a.status] - priority[b.status];
+            });
+
+            allData = displayData; // Store original
+            renderList(displayData);
+            updateStats();
+            checkAlerts();
         }
 
-        function checkDailyAlerts(data) {
-            const alerts = data.filter(item => item.status === 'overdue' || item.status === 'warning');
-            const container = document.getElementById('alertListContainer');
+        function renderList(data) {
+            const container = document.getElementById('equipmentList');
             container.innerHTML = '';
-            if (alerts.length > 0) {
-                alerts.forEach(item => {
-                    const isOverdue = item.status === 'overdue';
-                    const icon = isOverdue ? '🔴' : '🟡';
-                    container.innerHTML += `
-                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md transition-shadow">
-                            <span class="text-lg mt-0.5">${icon}</span>
-                            <div class="flex-1">
-                                <div class="flex justify-between">
-                                    <h4 class="font-bold text-gray-900 text-sm">${item.name}</h4>
-                                    <span class="text-[10px] font-bold ${isOverdue ? 'text-red-700' : 'text-amber-700'}">${isOverdue ? 'Overdue' : 'Due Soon'}</span>
-                                </div>
-                                <p class="text-xs text-gray-500">ID: ${item.id} | PSI: ${item.owner}</p>
-                                <p class="text-xs font-mono font-bold mt-1 text-gray-700">Due: ${formatDate(item.nextDate)}</p>
+            document.getElementById('loadingState').classList.add('hidden');
+
+            data.forEach(item => {
+                // Determine Styles
+                let statusClass = item.status === 'overdue' ? 'status-overdue' : (item.status === 'warning' ? 'status-warning' : 'status-normal');
+                let statusText = item.status === 'overdue' ? `เกิน ${Math.abs(item.days)} วัน` : `เหลือ ${item.days} วัน`;
+                
+                // Image
+                const imgHTML = item.image ? `<img src="${item.image}" class="w-24 h-24 object-cover rounded-lg border bg-gray-100">` : `<div class="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs">No Img</div>`;
+
+                // Actions
+                const pdfBtn = item.pdf ? `<button onclick="viewPdf('${item.pdf}')" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-200 flex items-center gap-1 hover:bg-blue-100">📄 ดูเอกสาร</button>` : '';
+                
+                // Admin Actions (Hidden by default)
+                const adminActions = `
+                    <div class="admin-only ${isAdmin ? '' : 'hidden'} mt-3 pt-3 border-t border-gray-100 flex gap-2">
+                        <button onclick="editTool('${item.id}')" class="flex-1 py-1.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">แก้ไข</button>
+                    </div>
+                `;
+
+                const card = `
+                    <div class="tool-card p-4 flex gap-4 animate-fade-in relative">
+                        <div class="shrink-0 flex flex-col gap-2">
+                            ${imgHTML}
+                            <button onclick="viewHistory('${item.id}')" class="text-[10px] bg-gray-100 text-gray-600 py-1 rounded border hover:bg-gray-200 flex items-center justify-center gap-1">
+                                🕒 ประวัติ
+                            </button>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">${item.id}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
                             </div>
-                        </div>`;
-                });
-                document.getElementById('alertModalOverlay').classList.remove('hidden');
+                            <h3 class="font-bold text-gray-900 text-lg leading-tight truncate mb-2">${item.name}</h3>
+                            
+                            <div class="space-y-1 text-sm text-gray-600">
+                                <div class="flex items-center gap-2"><span class="text-gray-400 w-4">👤</span> ${item.owner}</div>
+                                <div class="flex items-center gap-2"><span class="text-gray-400 w-4">📅</span> <span class="font-mono font-bold text-gray-800">${formatDate(item.nextDate)}</span></div>
+                            </div>
+
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                ${pdfBtn}
+                            </div>
+                            ${adminActions}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        // --- ADMIN SYSTEM ---
+        function toggleAdmin() {
+            if (isAdmin) {
+                // Logout
+                isAdmin = false;
+                document.getElementById('adminIndicator').classList.add('hidden');
+                document.getElementById('addBtn').classList.add('hidden');
+                renderList(displayData);
+                showAlert("ออกจากระบบ", "คุณออกจากโหมด Admin แล้ว");
+            } else {
+                // Open Login
+                document.getElementById('loginModal').classList.remove('hidden');
             }
         }
 
-        function closeAlertModal() { document.getElementById('alertModalOverlay').classList.add('hidden'); }
-        function openHelpModal() { document.getElementById('helpModalOverlay').classList.remove('hidden'); }
-        function closeHelpModal() { document.getElementById('helpModalOverlay').classList.add('hidden'); }
+        function checkLogin() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === 'jiraphong2227') {
+                isAdmin = true;
+                document.getElementById('adminIndicator').classList.remove('hidden');
+                document.getElementById('addBtn').classList.remove('hidden');
+                closeModal('loginModal');
+                document.getElementById('adminPass').value = '';
+                renderList(displayData); // Re-render to show buttons
+                showAlert("เข้าสู่ระบบสำเร็จ", "ยินดีต้อนรับ Admin");
+            } else {
+                alert("รหัสผ่านไม่ถูกต้อง!");
+            }
+        }
+
+        // --- HISTORY ---
+        function viewHistory(id) {
+            const item = displayData.find(d => d.id === id);
+            if (!item || !item.history) return;
+
+            const container = document.getElementById('historyContent');
+            container.innerHTML = '';
+
+            item.history.forEach(h => {
+                container.innerHTML += `
+                    <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-bold text-gray-700">${formatDate(h.nextDate)}</span>
+                            <span class="text-xs text-gray-400">Calibration Date</span>
+                        </div>
+                        <p class="text-xs text-gray-500">PSI: ${h.owner}</p>
+                        ${h.remarks ? `<p class="text-xs text-gray-500 italic">"${h.remarks}"</p>` : ''}
+                        ${h.pdf ? `<a href="${h.pdf.replace('/view', '/preview')}" target="_blank" class="text-[10px] text-blue-500 underline mt-1 block">ดูเอกสาร</a>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        // --- ACTIONS ---
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "เพิ่มอุปกรณ์ใหม่";
+            document.getElementById('toolForm').reset();
+            document.getElementById('preview').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('pdfName').innerText = "เลือกไฟล์ PDF...";
+            document.getElementById('inp_id').readOnly = false;
+            imageBase64 = null; pdfBase64 = null;
+            document.getElementById('toolModal').classList.remove('hidden');
+        }
+
+        function editTool(id) {
+            const item = displayData.find(d => d.id === id);
+            if(!item) return;
+
+            // Pre-fill form
+            document.getElementById('modalTitle').innerText = "แก้ไขอุปกรณ์";
+            document.getElementById('inp_id').value = item.id;
+            document.getElementById('inp_id').readOnly = true; // ID cannot change
+            document.getElementById('inp_name').value = item.name;
+            document.getElementById('inp_last').value = item.lastDate ? new Date(item.lastDate).toISOString().split('T')[0] : '';
+            document.getElementById('inp_next').value = item.nextDate ? new Date(item.nextDate).toISOString().split('T')[0] : '';
+            document.getElementById('inp_psi').value = item.owner;
+            document.getElementById('inp_remarks').value = item.remarks || '';
+            
+            // Show Modal
+            document.getElementById('toolModal').classList.remove('hidden');
+        }
+
+        function viewPdf(url) {
+            // Convert /view to /preview for embedding
+            const previewUrl = url.replace('/view', '/preview');
+            document.getElementById('pdfFrame').src = previewUrl;
+            document.getElementById('pdfModal').classList.remove('hidden');
+        }
+
+        // --- SUBMIT ---
+        function submitData(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "กำลังบันทึก...";
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const payload = {
+                id: formData.get('id'), name: formData.get('name'), lastDate: formData.get('lastDate'),
+                nextDate: formData.get('nextDate'), psi: formData.get('psi'), remarks: formData.get('remarks'),
+                imageBase64: imageBase64, pdfBase64: pdfBase64
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    showAlert("สำเร็จ", "บันทึกข้อมูลเรียบร้อย");
+                    closeModal('toolModal');
+                    fetchData(); // Reload
+                } else throw new Error(data.message);
+            })
+            .catch(err => { alert("Error: " + err.message); })
+            .finally(() => { btn.innerText = originalText; btn.disabled = false; });
+        }
+
+        // --- HELPERS & UTILS ---
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openManual() { document.getElementById('manualModal').classList.remove('hidden'); }
         
+        function showAlert(title, msg) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMsg').innerText = msg;
+            const popup = document.getElementById('alertPopup');
+            popup.classList.remove('hidden');
+            setTimeout(() => popup.classList.add('hidden'), 4000);
+        }
+
+        function checkAlerts() {
+            const count = displayData.filter(d => d.status === 'overdue' || d.status === 'warning').length;
+            if (count > 0) showAlert("แจ้งเตือน", `มีอุปกรณ์ ${count} รายการ ที่ต้องตรวจสอบ`);
+        }
+
         function updateStats() {
-            document.getElementById('statTotal').innerText = rawData.length;
-            document.getElementById('statNormal').innerText = rawData.filter(i => i.status === 'normal').length;
-            document.getElementById('statWarning').innerText = rawData.filter(i => i.status === 'warning').length;
-            document.getElementById('statOverdue').innerText = rawData.filter(i => i.status === 'overdue').length;
+            document.getElementById('statTotal').innerText = displayData.length;
+            document.getElementById('statNormal').innerText = displayData.filter(d => d.status === 'normal').length;
+            document.getElementById('statAlert').innerText = displayData.filter(d => d.status !== 'normal').length;
+        }
+
+        function filterData() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = displayData.filter(d => d.name.toLowerCase().includes(term) || d.id.toLowerCase().includes(term));
+            renderList(filtered);
         }
 
         function handleImage(input) {
@@ -444,38 +573,6 @@
             reader.readAsDataURL(input.files[0]);
         }
 
-        function submitData(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "UPLOADING...";
-            btn.disabled = true;
-
-            const formData = new FormData(e.target);
-            const payload = {
-                id: formData.get('id'), name: formData.get('name'), lastDate: formData.get('lastDate'),
-                nextDate: formData.get('nextDate'), psi: formData.get('psi'), remarks: formData.get('remarks'),
-                imageBase64: imageBase64, pdfBase64: pdfBase64
-            };
-
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') { alert("Success!"); closeAddModal(); fetchData(); }
-                else throw new Error(data.message);
-            })
-            .catch(err => { alert("Error: " + err.message); })
-            .finally(() => { btn.innerText = "SAVE"; btn.disabled = false; });
-        }
-
-        function openAddModal() { document.getElementById('addModalOverlay').classList.remove('hidden'); }
-        function closeAddModal() { 
-            document.getElementById('addModalOverlay').classList.add('hidden'); 
-            document.getElementById('addForm').reset();
-            document.getElementById('preview').classList.add('hidden');
-            document.getElementById('uploadPlaceholder').classList.remove('hidden');
-            document.getElementById('pdfName').innerText = "Choose PDF File...";
-            imageBase64 = null; pdfBase64 = null;
-        }
         function formatDate(d) {
             if(!d) return "-";
             const date = new Date(d);
