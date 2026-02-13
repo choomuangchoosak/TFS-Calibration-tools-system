@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALIBRATION TFS TOOLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
+        :root { --brand-red: #d52b1e; }
+
+        /* 3D Styles */
+        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 6px 6px 0px 0px #059669; transition: 0.2s; }
+        .box-normal:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #059669; }
+
+        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 6px 6px 0px 0px #d97706; transition: 0.2s; }
+        .box-warning:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #d97706; }
+
+        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 6px 6px 0px 0px #dc2626; transition: 0.2s; }
+        .box-overdue:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #dc2626; }
+
+        .btn-3d { transition: 0.15s; box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2); }
+        .btn-3d:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.2); }
+
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #d52b1e; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
+        
+        /* Formatting for Manual */
+        .manual-section h3 { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem; color: #1a1a1a; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.25rem; }
+        .manual-section p, .manual-section li { font-size: 0.875rem; color: #4b5563; line-height: 1.6; }
+        .manual-section ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-gray-800">
+
+    <div id="app" class="min-h-full flex flex-col max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <header class="bg-white border-b-4 border-[--brand-red] shadow-sm sticky top-0 z-40">
+            <div class="px-4 py-4">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 min-w-[3rem] bg-[--brand-red] text-white flex items-center justify-center font-bold text-2xl shadow-[3px_3px_0px_0px_#1a1a1a]">S</div>
+                        <div class="flex flex-col justify-center h-full pt-0.5">
+                            <h1 class="text-lg md:text-xl font-black leading-tight tracking-tight uppercase" data-i18n="title">CALIBRATION TFS TOOLS</h1>
+                            <p class="text-[10px] sm:text-xs text-gray-500 mt-1 font-medium leading-tight max-w-[200px] sm:max-w-none" data-i18n="subtitle">ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <!-- Manual Button -->
+                        <button onclick="openHelpModal()" class="shrink-0 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold text-[10px] hover:bg-blue-100 transition-colors flex items-center gap-1">
+                            <span>📘</span> <span id="manualBtnText">คู่มือ</span>
+                        </button>
+                        <!-- Lang Button -->
+                        <button onclick="toggleLang()" class="shrink-0 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded font-bold text-[10px] transition-colors" id="langBtn">TH / EN</button>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-3 flex justify-end">
+                    <button onclick="openAddModal()" class="w-full sm:w-auto px-6 py-3 bg-[--brand-red] text-white font-bold text-sm btn-3d rounded flex justify-center items-center gap-2">
+                        <span class="text-lg leading-none">+</span> <span data-i18n="btn_add">ADD TOOL</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="p-4 pb-20 space-y-8">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 border-2 border-gray-800 shadow-[4px_4px_0px_0px_#1f2937] rounded"><p class="text-[10px] font-black text-gray-400" data-i18n="stat_total">TOTAL</p><h3 id="statTotal" class="text-3xl font-black text-gray-800">...</h3></div>
+                <div class="bg-white p-4 border-2 border-emerald-500 shadow-[4px_4px_0px_0px_#10b981] rounded"><p class="text-[10px] font-black text-emerald-600/60" data-i18n="stat_normal">NORMAL</p><h3 id="statNormal" class="text-3xl font-black text-emerald-600">...</h3></div>
+                <div class="bg-white p-4 border-2 border-amber-500 shadow-[4px_4px_0px_0px_#f59e0b] rounded"><p class="text-[10px] font-black text-amber-600/60" data-i18n="stat_soon">DUE SOON</p><h3 id="statWarning" class="text-3xl font-black text-amber-500">...</h3></div>
+                <div class="bg-white p-4 border-2 border-red-500 shadow-[4px_4px_0px_0px_#ef4444] rounded"><p class="text-[10px] font-black text-red-600/60" data-i18n="stat_overdue">OVERDUE</p><h3 id="statOverdue" class="text-3xl font-black text-red-600">...</h3></div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="flex justify-center py-10"><div class="loader"></div></div>
+
+            <!-- List -->
+            <div id="equipmentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+        </main>
+    </div>
+
+    <!-- ADD MODAL -->
+    <div id="addModalOverlay" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-[10px_10px_0px_0px_rgba(0,0,0,0.5)] border-4 border-black p-6 relative">
+            <h2 class="text-2xl font-black mb-6 uppercase tracking-tight" data-i18n="modal_title">ADD TOOL</h2>
+            <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
+                <!-- Photo Input -->
+                <div class="w-full">
+                    <label class="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider" data-i18n="label_photo">PHOTO</label>
+                    <label class="block w-full h-48 bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-500 rounded-lg cursor-pointer relative flex items-center justify-center overflow-hidden transition-colors">
+                        <img id="preview" class="absolute w-full h-full object-cover hidden">
+                        <div id="uploadPlaceholder" class="text-center"><span class="text-4xl">📷</span><p class="text-xs text-gray-500 mt-2 font-bold" data-i18n="tap_camera">ATTACH PHOTO</p></div>
+                        <input type="file" id="imgInput" accept="image/*" capture="environment" class="hidden" onchange="handleImage(this)">
+                    </label>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                    <div><label class="text-xs font-bold text-gray-500">NAME TOOL / ชื่ออุปกรณ์/เครื่องมือ *</label><input type="text" name="name" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-gray-500">LAST DATE</label><input type="date" name="lastDate" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
+                    <div><label class="text-xs font-bold text-gray-500">NEXT DUE *</label><input type="date" name="nextDate" required class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CALIBRATION DOC (PDF)</label>
+                    <label class="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                        <span id="pdfName" class="text-xs text-gray-500 font-medium truncate">Choose File...</span>
+                        <input type="file" id="pdfInput" accept="application/pdf" class="hidden" onchange="handlePdf(this)">
+                    </label>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeAddModal()" class="flex-1 py-3.5 border-2 border-gray-300 font-bold text-xs uppercase tracking-wider hover:bg-gray-100" data-i18n="btn_cancel">CANCEL</button>
+                    <button type="submit" id="submitBtn" class="flex-1 py-3.5 bg-black text-white font-bold text-xs uppercase tracking-wider btn-3d hover:bg-gray-800" data-i18n="btn_save">SAVE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ALERT POPUP -->
+    <div id="alertModalOverlay" class="fixed inset-0 bg-red-900/90 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-lg max-h-[85vh] flex flex-col shadow-[0px_20px_50px_rgba(0,0,0,0.5)] border-4 border-red-600 animate-slide-down rounded-lg">
+            <div class="bg-red-600 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3 text-white">
+                    <span class="text-3xl">⚠️</span>
+                    <div>
+                        <h2 class="text-xl font-black uppercase tracking-tight" data-i18n="alert_title">ATTENTION REQUIRED</h2>
+                        <p class="text-xs font-medium text-red-100" data-i18n="alert_subtitle">The following items need action</p>
+                    </div>
+                </div>
+                <button onclick="closeAlertModal()" class="text-white/80 hover:text-white font-bold text-2xl">✕</button>
+            </div>
+            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer"></div>
+            <div class="p-4 border-t border-gray-200 bg-white">
+                <button onclick="closeAlertModal()" class="w-full py-3 bg-gray-900 text-white font-bold text-sm uppercase tracking-wider btn-3d rounded hover:bg-black">
+                    ACKNOWLEDGE / รับทราบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP/MANUAL MODAL -->
+    <div id="helpModalOverlay" class="fixed inset-0 bg-slate-900/80 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border-4 border-blue-600 rounded-lg relative">
+            <!-- Header -->
+            <div class="bg-blue-600 p-5 flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center gap-3 text-white">
+                    <span class="text-3xl">📘</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight" id="manualTitle">USER MANUAL</h2>
+                </div>
+                <button onclick="closeHelpModal()" class="text-white hover:text-blue-100 font-bold text-2xl">✕</button>
+            </div>
+            
+            <!-- Content Container -->
+            <div class="p-6 space-y-6 manual-section">
+                
+                <!-- THAI CONTENT -->
+                <div id="manualContentTH">
+                    <h3 class="text-blue-700">1. ภาพรวมระบบ (Overview)</h3>
+                    <p>ระบบ <strong>CALIBRATION TFS TOOLS</strong> ช่วยบริหารจัดการวันครบกำหนดสอบเทียบเครื่องมือวัดในแผนก TFS โดยจะคำนวณสถานะอัตโนมัติและแจ้งเตือนเมื่อถึงกำหนด</p>
+                    
+                    <h3 class="text-blue-700 mt-4">2. ความหมายของสถานะ (Status Colors)</h3>
+                    <ul>
+                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>ปกติ (Normal):</strong> เครื่องมือยังไม่ถึงกำหนดสอบเทียบ (เหลือเวลามากกว่า 30 วัน)</li>
+                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>ใกล้ครบ (Due Soon):</strong> เหลือเวลาน้อยกว่าหรือเท่ากับ 30 วัน</li>
+                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>เกินกำหนด (Overdue):</strong> เลยวันสอบเทียบแล้ว ต้องดำเนินการทันที</li>
+                    </ul>
+
+                    <h3 class="text-blue-700 mt-4">3. การเพิ่มอุปกรณ์ (Add Tool)</h3>
+                    <ul>
+                        <li>กดปุ่ม <strong>"+ เพิ่มอุปกรณ์"</strong> ด้านบน</li>
+                        <li><strong>รูปถ่าย (Photo):</strong> แตะที่กรอบเพื่อถ่ายรูป หรือเลือกรูปจากเครื่อง</li>
+                        <li>กรอก <strong>รหัส (ID), ชื่อ (Name), PSI</strong> ให้ครบถ้วน</li>
+                        <li>เลือก <strong>วันครบกำหนด (Next Due)</strong> *สำคัญมาก ระบบใช้คำนวณสถานะ</li>
+                        <li><strong>แนบเอกสาร Calibration:</strong> เลือกไฟล์ PDF เพื่อเก็บใบรับรอง (ขนาดไม่เกิน 5MB)</li>
+                        <li>กด <strong>บันทึก (Save)</strong> และรอจนกว่าจะขึ้น Success</li>
+                    </ul>
+
+                    <h3 class="text-blue-700 mt-4">4. การดูเอกสาร (View Document)</h3>
+                    <p>หากเครื่องมือรายการใดมีการแนบไฟล์ PDF ไว้ จะมีปุ่ม <strong>📄 ดูเอกสาร Calibration</strong> ปรากฏขึ้นที่การ์ดรายการ สามารถกดเพื่อเปิดดูใบรับรองได้ทันที</p>
+                </div>
+
+                <!-- ENGLISH CONTENT (Hidden by default) -->
+                <div id="manualContentEN" class="hidden">
+                    <h3 class="text-blue-700">1. System Overview</h3>
+                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates for tools in the TFS department. It automatically calculates status and provides alerts.</p>
+                    
+                    <h3 class="text-blue-700 mt-4">2. Status Indicators</h3>
+                    <ul>
+                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>Normal:</strong> More than 30 days remaining.</li>
+                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>Due Soon:</strong> Due within 30 days.</li>
+                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>Overdue:</strong> Calibration date has passed. Action required.</li>
+                    </ul>
+
+                    <h3 class="text-blue-700 mt-4">3. Adding a Tool</h3>
+                    <ul>
+                        <li>Click the <strong>"+ ADD TOOL"</strong> button.</li>
+                        <li><strong>Photo:</strong> Tap the box to take a photo or select one from your device.</li>
+                        <li>Fill in <strong>Tool ID, Name, PSI</strong>.</li>
+                        <li>Select <strong>Next Due Date</strong> (Critical for status calculation).</li>
+                        <li><strong>Attach Calibration Doc:</strong> Upload the Calibration Certificate (PDF, Max 5MB).</li>
+                        <li>Click <strong>SAVE</strong> and wait for the success message.</li>
+                    </ul>
+
+                    <h3 class="text-blue-700 mt-4">4. Viewing Documents</h3>
+                    <p>If a PDF was uploaded for a tool, a <strong>📄 VIEW CALIBRATION</strong> button will appear on the tool card. Click to view the certificate.</p>
+                </div>
+
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 bg-gray-50 text-center">
+                <button onclick="closeHelpModal()" class="px-8 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 btn-3d">CLOSE / ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // *** CHANGE THIS URL TO YOUR DEPLOYED SCRIPT URL ***
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9G7-pUwaurN0VA0wwC0TWlJFc79PlFNlZxGOa53BXO3oObFxAIt9ODTSdudFEMnC1KA/exec'; 
+
+        let currentLang = 'th';
+        let rawData = [];
+        let imageBase64 = null;
+        let pdfBase64 = null;
+
+        const translations = {
+            en: {
+                title: "CALIBRATION TFS TOOLS",
+                subtitle: "Tools Calibration Management & Alert System - TFS Dept.",
+                btn_add: "ADD TOOL", stat_total: "TOTAL", stat_normal: "NORMAL",
+                stat_soon: "DUE SOON", stat_overdue: "OVERDUE", modal_title: "ADD TOOL", label_photo: "PHOTO",
+                tap_camera: "ATTACH PHOTO", btn_cancel: "CANCEL", btn_save: "SAVE", status_over: "Overdue", 
+                status_left: "Days Left", alert_title: "ATTENTION REQUIRED", alert_subtitle: "Items due within 30 days or overdue",
+                label_remarks: "REMARKS", label_pdf: "ATTACH CALIBRATION DOC (PDF)", view_pdf: "VIEW CALIBRATION", manual_btn: "MANUAL"
+            },
+            th: {
+                title: "CALIBRATION TFS TOOLS",
+                subtitle: "ระบบแจ้งเตือน/บริหารจัดการการสอบเทียบอุปกรณ์และเครื่องมือ แผนกTFS",
+                btn_add: "เพิ่มอุปกรณ์", stat_total: "ทั้งหมด", stat_normal: "ปกติ",
+                stat_soon: "ใกล้ครบ", stat_overdue: "เกินกำหนด", modal_title: "เพิ่มอุปกรณ์", label_photo: "รูปถ่าย",
+                tap_camera: "แนบรูป", btn_cancel: "ยกเลิก", btn_save: "บันทึก", status_over: "เกินกำหนด", 
+                status_left: "เหลืออีก", alert_title: "รายการต้องตรวจสอบ", alert_subtitle: "รายการที่เกินกำหนด หรือครบกำหนดใน 30 วัน",
+                label_remarks: "หมายเหตุ", label_pdf: "แนบเอกสาร Calibration (PDF)", view_pdf: "ดูเอกสาร Calibration", manual_btn: "คู่มือ"
+            }
+        };
+
+        window.onload = () => { fetchData(); updateUI(); };
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'th' : 'en';
+            updateUI();
+            renderList();
+        }
+
+        function updateUI() {
+            // General translations
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if(translations[currentLang][key]) el.innerText = translations[currentLang][key];
+            });
+            document.getElementById('langBtn').innerText = currentLang === 'en' ? "EN" : "TH";
+            document.getElementById('manualBtnText').innerText = translations[currentLang].manual_btn;
+
+            // Manual Content Toggle
+            const manualTH = document.getElementById('manualContentTH');
+            const manualEN = document.getElementById('manualContentEN');
+            const manualTitle = document.getElementById('manualTitle');
+
+            if (currentLang === 'th') {
+                manualTH.classList.remove('hidden');
+                manualEN.classList.add('hidden');
+                manualTitle.innerText = "คู่มือการใช้งาน";
+            } else {
+                manualTH.classList.add('hidden');
+                manualEN.classList.remove('hidden');
+                manualTitle.innerText = "USER MANUAL";
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                rawData = await response.json();
+                
+                rawData = rawData.map(item => {
+                    const next = new Date(item.nextDate);
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const diffTime = next - today;
+                    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    let status = 'normal';
+                    if(days < 0) status = 'overdue';
+                    else if(days <= 30) status = 'warning';
+                    return { ...item, days, status };
+                });
+
+                updateStats();
+                renderList();
+                checkDailyAlerts(rawData);
+                
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('equipmentList').classList.remove('hidden');
+
+            } catch (error) {
+                console.error(error);
+                alert("Connection Error. Please try again.");
+            }
+        }
+
+        function renderList() {
+            const list = document.getElementById('equipmentList');
+            list.innerHTML = '';
+            rawData.sort((a, b) => {
+                const priority = { overdue: 0, warning: 1, normal: 2 };
+                return priority[a.status] - priority[b.status];
+            });
+
+            rawData.forEach(item => {
+                let boxClass = 'box-normal';
+                let textColor = 'text-emerald-700';
+                let badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                
+                if (item.status === 'overdue') {
+                    boxClass = 'box-overdue'; textColor = 'text-red-700'; badgeColor = 'bg-red-100 text-red-800 border-red-200';
+                } else if (item.status === 'warning') {
+                    boxClass = 'box-warning'; textColor = 'text-amber-700'; badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
+                }
+
+                const statusText = item.status === 'overdue' 
+                    ? `${Math.abs(item.days)} ${translations[currentLang].status_over}`
+                    : `${item.days} ${translations[currentLang].status_left}`;
+                
+                const imgHTML = item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs tracking-wider">NO IMAGE</div>`;
+
+                // Add PDF Button if link exists
+                const pdfButton = item.pdf ? `
+                    <a href="${item.pdf}" target="_blank" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 flex items-center gap-1">
+                        📄 ${translations[currentLang].view_pdf}
+                    </a>
+                ` : '';
+
+                const remarksText = item.remarks ? `<p class="text-xs text-gray-500 italic mt-1 border-t pt-1">Note: ${item.remarks}</p>` : '';
+
+                list.innerHTML += `
+                    <div class="${boxClass} flex flex-col group h-full rounded-lg overflow-hidden relative">
+                        <div class="h-48 w-full border-b-2 border-gray-100 relative bg-white">${imgHTML}
+                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-xs font-black uppercase tracking-wide rounded border ${badgeColor} shadow-sm">${statusText}</span></div>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID: ${item.id}</span>
+                                ${pdfButton}
+                            </div>
+                            <h3 class="font-bold text-xl leading-tight mb-2 text-gray-900">${item.name}</h3>
+                            ${remarksText}
+                            <div class="mt-auto pt-4 border-t border-gray-200/50 text-sm flex justify-between items-center">
+                                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-wider">PSI</p><p class="font-bold text-gray-700">${item.owner}</p></div>
+                                <div class="text-right"><p class="text-[10px] text-gray-400 font-black uppercase tracking-wider">DUE</p><p class="font-bold font-mono ${textColor}">${formatDate(item.nextDate)}</p></div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function checkDailyAlerts(data) {
+            const alerts = data.filter(item => item.status === 'overdue' || item.status === 'warning');
+            const container = document.getElementById('alertListContainer');
+            container.innerHTML = '';
+            if (alerts.length > 0) {
+                alerts.forEach(item => {
+                    const isOverdue = item.status === 'overdue';
+                    const borderColor = isOverdue ? 'border-red-500' : 'border-amber-500';
+                    const bgColor = isOverdue ? 'bg-red-50' : 'bg-amber-50';
+                    const icon = isOverdue ? '🔴' : '🟡';
+                    const textStatus = isOverdue ? `Overdue ${Math.abs(item.days)} Days` : `Due in ${item.days} Days`;
+                    container.innerHTML += `
+                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border-l-8 ${borderColor} shadow-sm rounded-r-lg">
+                            <span class="text-xl mt-1">${icon}</span>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-gray-900 text-lg leading-none">${item.name}</h4>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgColor} border ${isOverdue ? 'border-red-200 text-red-800' : 'border-amber-200 text-amber-800'} uppercase">${textStatus}</span>
+                                </div>
+                                <p class="text-xs font-bold text-gray-400 mt-1">ID: ${item.id}</p>
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="text-gray-600">PSI: <strong>${item.owner}</strong></span>
+                                    <span class="font-mono font-bold text-gray-800">${formatDate(item.nextDate)}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('alertModalOverlay').classList.remove('hidden');
+            }
+        }
+
+        function closeAlertModal() { document.getElementById('alertModalOverlay').classList.add('hidden'); }
+        
+        // --- Help Modal Functions ---
+        function openHelpModal() { document.getElementById('helpModalOverlay').classList.remove('hidden'); }
+        function closeHelpModal() { document.getElementById('helpModalOverlay').classList.add('hidden'); }
+
+        function updateStats() {
+            document.getElementById('statTotal').innerText = rawData.length;
+            document.getElementById('statNormal').innerText = rawData.filter(i => i.status === 'normal').length;
+            document.getElementById('statWarning').innerText = rawData.filter(i => i.status === 'warning').length;
+            document.getElementById('statOverdue').innerText = rawData.filter(i => i.status === 'overdue').length;
+        }
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        imageBase64 = canvas.toDataURL('image/jpeg', 0.6); 
+                        document.getElementById('preview').src = imageBase64;
+                        document.getElementById('preview').classList.remove('hidden');
+                        document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handlePdf(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) { // Limit 5MB
+                    alert("File too large (Max 5MB)");
+                    input.value = "";
+                    return;
+                }
+                document.getElementById('pdfName').innerText = file.name;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    pdfBase64 = e.target.result; // Data URL for PDF
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function submitData(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const payload = {
+                id: formData.get('id'),
+                name: formData.get('name'),
+                lastDate: formData.get('lastDate'),
+                nextDate: formData.get('nextDate'),
+                psi: formData.get('psi'),
+                remarks: formData.get('remarks'),
+                imageBase64: imageBase64,
+                pdfBase64: pdfBase64 // Send PDF
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert("Success!");
+                closeAddModal();
+                fetchData();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Data sent (Please verify refresh)");
+                closeAddModal();
+                fetchData();
+            })
+            .finally(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function openAddModal() { document.getElementById('addModalOverlay').classList.remove('hidden'); }
+        function closeAddModal() { 
+            document.getElementById('addModalOverlay').classList.add('hidden'); 
+            document.getElementById('addForm').reset();
+            document.getElementById('preview').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('pdfName').innerText = "Choose File...";
+            imageBase64 = null;
+            pdfBase64 = null;
+        }
+        function formatDate(d) {
+            const date = new Date(d);
+            return `${date.getDate().toString().padStart(2,'0')}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>
+
+
