@@ -11,11 +11,10 @@
         * { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
         :root { --brand-red: #d52b1e; --brand-black: #1a1a1a; }
 
-        /* 3D Styles */
-        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 4px 4px 0px 0px #059669; transition: 0.2s; }
-        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 4px 4px 0px 0px #d97706; transition: 0.2s; }
-        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 4px 4px 0px 0px #dc2626; transition: 0.2s; }
-        
+        /* Schindler Theme Elements */
+        .box-normal { background: white; border: 2px solid #10b981; box-shadow: 6px 6px 0px 0px #059669; transition: 0.2s; }
+        .box-warning { background: #fffbeb; border: 2px solid #f59e0b; box-shadow: 6px 6px 0px 0px #d97706; transition: 0.2s; }
+        .box-overdue { background: #fef2f2; border: 2px solid #ef4444; box-shadow: 6px 6px 0px 0px #dc2626; transition: 0.2s; }
         .box-normal:hover, .box-warning:hover, .box-overdue:hover { transform: translate(-2px, -2px); }
 
         .btn-3d { transition: 0.15s; box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2); }
@@ -64,12 +63,21 @@
 
         <!-- CONTENT -->
         <main class="p-4 pb-20 space-y-8">
-            <!-- Error Display -->
-            <div id="errorState" class="hidden p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm mb-4 rounded shadow-sm flex justify-between items-center">
-                <div>
-                    <strong class="font-bold">System Error:</strong> <span id="errorMsg">Unknown error</span>
+            
+            <!-- ERROR DISPLAY -->
+            <div id="errorState" class="hidden animate-slide-down mb-6">
+                <div class="bg-white border-l-8 border-[--brand-red] shadow-lg rounded-r-lg p-6 flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-[--brand-red] font-bold text-xl">!</div>
+                        <h3 class="font-black text-lg text-gray-900 uppercase">System Notification</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 ml-11" id="errorMsg">Unknown Error</p>
+                    <div class="ml-11 mt-2">
+                        <button onclick="window.location.reload()" class="px-4 py-2 bg-gray-900 text-white text-xs font-bold uppercase tracking-wider rounded hover:bg-black transition-colors">
+                            RELOAD SYSTEM / รีโหลด
+                        </button>
+                    </div>
                 </div>
-                <button onclick="window.location.reload()" class="underline font-bold ml-2">Reload</button>
             </div>
 
             <!-- Stats -->
@@ -101,7 +109,6 @@
                 </div>
                 
                 <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
-                    <!-- Photo Input -->
                     <div class="w-full">
                         <label class="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider" data-i18n="label_photo">PHOTO</label>
                         <label class="block w-full h-48 bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-500 rounded-lg cursor-pointer relative flex items-center justify-center overflow-hidden transition-colors">
@@ -113,7 +120,7 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
-                        <div><label class="text-xs font-bold text-gray-500">NAME TOOL *</label><input type="text" name="name" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
+                        <div><label class="text-xs font-bold text-gray-500">NAME TOOL / ชื่ออุปกรณ์/เครื่องมือ *</label><input type="text" name="name" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white transition-colors"></div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
@@ -122,7 +129,6 @@
                     </div>
                     
                     <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
-                    
                     <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
 
                     <div>
@@ -156,11 +162,7 @@
                 </div>
                 <button onclick="closeAlertModal()" class="text-gray-400 hover:text-black font-bold text-xl">&times;</button>
             </div>
-            
-            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer">
-                <!-- Items injected here -->
-            </div>
-
+            <div class="p-2 overflow-y-auto bg-gray-50" id="alertListContainer"></div>
             <div class="p-4 border-t border-gray-200 bg-white">
                 <button onclick="closeAlertModal()" class="w-full py-3 bg-[--brand-black] text-white font-bold text-sm uppercase tracking-wider btn-3d rounded hover:bg-black">
                     ACKNOWLEDGE / รับทราบ
@@ -179,7 +181,6 @@
                 </div>
                 <button onclick="closeHelpModal()" class="text-gray-400 hover:text-black font-bold text-2xl">&times;</button>
             </div>
-            
             <div class="p-6 space-y-6 manual-section">
                 <div id="manualContentTH">
                     <h3>1. ภาพรวมระบบ (Overview)</h3>
@@ -229,7 +230,7 @@
     <script>
         // **************************************************************************
         // URL ของคุณจากการ Deploy (New Deployment > Web App > Anyone)
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ850aYNAAVcOJaLxrXR07rbwAqp2Qyiv4p8TWCj1kMsdxkn33aUqnC4xlqYnnCBJw/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVKnhJyBqOn8Pk9lfITsEVa3lrMUEC-lvu76V77luxZQa_WagUZg5uaEJrgdY9kGE0/exec';
         // **************************************************************************
 
         let currentLang = 'th';
@@ -294,21 +295,15 @@
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
-                // Read text first to debug if JSON parse fails
                 const text = await response.text();
                 try {
                     rawData = JSON.parse(text);
                 } catch (e) {
-                    throw new Error("Invalid Data Format. (Check App Script Deployment)");
+                    throw new Error("Invalid Data Format. Script Deployment Error?");
                 }
 
-                // Check for API-level error
                 if (rawData.status === 'error') throw new Error(rawData.message);
-                
-                // If Array check fails (Fix for map error)
-                if (!Array.isArray(rawData)) {
-                    rawData = []; // Fallback to empty
-                }
+                if (!Array.isArray(rawData)) rawData = []; // Handle empty sheet
 
                 rawData = rawData.map(item => {
                     const next = new Date(item.nextDate);
@@ -380,14 +375,13 @@
                 alerts.forEach(item => {
                     const isOverdue = item.status === 'overdue';
                     const icon = isOverdue ? '🔴' : '🟡';
-                    const colorClass = isOverdue ? 'text-red-700' : 'text-amber-700';
                     container.innerHTML += `
                         <div class="flex items-start gap-3 p-4 mb-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md transition-shadow">
                             <span class="text-lg mt-0.5">${icon}</span>
                             <div class="flex-1">
                                 <div class="flex justify-between">
                                     <h4 class="font-bold text-gray-900 text-sm">${item.name}</h4>
-                                    <span class="text-[10px] font-bold ${colorClass}">${isOverdue ? 'Overdue' : 'Due Soon'}</span>
+                                    <span class="text-[10px] font-bold ${isOverdue ? 'text-red-700' : 'text-amber-700'}">${isOverdue ? 'Overdue' : 'Due Soon'}</span>
                                 </div>
                                 <p class="text-xs text-gray-500">ID: ${item.id} | PSI: ${item.owner}</p>
                                 <p class="text-xs font-mono font-bold mt-1 text-gray-700">Due: ${formatDate(item.nextDate)}</p>
