@@ -11,7 +11,7 @@
         * { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
         :root { --brand-red: #d52b1e; }
 
-        /* 3D Styles */
+        /* --- 3D Box Styles --- */
         .box-normal { background: white; border: 2px solid #10b981; box-shadow: 6px 6px 0px 0px #059669; transition: 0.2s; }
         .box-normal:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #059669; }
 
@@ -24,16 +24,18 @@
         .btn-3d { transition: 0.15s; box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2); }
         .btn-3d:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px 0px rgba(0,0,0,0.2); }
 
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #d52b1e; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        /* Loader */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #d52b1e; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* Animations */
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
-        
-        /* Formatting for Manual */
-        .manual-section h3 { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem; color: #1a1a1a; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.25rem; }
-        .manual-section p, .manual-section li { font-size: 0.875rem; color: #4b5563; line-height: 1.6; }
-        .manual-section ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1rem; }
+
+        /* Manual Styling */
+        .manual-section h3 { font-weight: 800; font-size: 1rem; margin-top: 1rem; margin-bottom: 0.25rem; color: #1e3a8a; }
+        .manual-section p, .manual-section li { font-size: 0.85rem; color: #4b5563; line-height: 1.5; }
+        .manual-section ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body class="h-full bg-slate-50 text-gray-800">
@@ -56,7 +58,7 @@
                         <button onclick="openHelpModal()" class="shrink-0 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold text-[10px] hover:bg-blue-100 transition-colors flex items-center gap-1">
                             <span>📘</span> <span id="manualBtnText">คู่มือ</span>
                         </button>
-                        <!-- Lang Button -->
+                        <!-- Language Toggle -->
                         <button onclick="toggleLang()" class="shrink-0 px-2 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded font-bold text-[10px] transition-colors" id="langBtn">TH / EN</button>
                     </div>
                 </div>
@@ -80,7 +82,10 @@
             </div>
 
             <!-- Loading -->
-            <div id="loadingState" class="flex justify-center py-10"><div class="loader"></div></div>
+            <div id="loadingState" class="flex flex-col items-center justify-center py-10">
+                <div class="loader mb-2"></div>
+                <p class="text-xs text-gray-400 animate-pulse">Loading Data...</p>
+            </div>
 
             <!-- List -->
             <div id="equipmentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
@@ -89,8 +94,12 @@
 
     <!-- ADD MODAL -->
     <div id="addModalOverlay" class="fixed inset-0 bg-gray-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-[10px_10px_0px_0px_rgba(0,0,0,0.5)] border-4 border-black p-6 relative">
-            <h2 class="text-2xl font-black mb-6 uppercase tracking-tight" data-i18n="modal_title">ADD TOOL</h2>
+        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto shadow-[10px_10px_0px_0px_rgba(0,0,0,0.5)] border-4 border-black p-6 relative rounded-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black uppercase tracking-tight" data-i18n="modal_title">ADD TOOL</h2>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">×</button>
+            </div>
+            
             <form id="addForm" onsubmit="submitData(event)" class="space-y-5">
                 <!-- Photo Input -->
                 <div class="w-full">
@@ -101,24 +110,30 @@
                         <input type="file" id="imgInput" accept="image/*" capture="environment" class="hidden" onchange="handleImage(this)">
                     </label>
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="text-xs font-bold text-gray-500">TOOL ID *</label><input type="text" name="id" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
                     <div><label class="text-xs font-bold text-gray-500">NAME TOOL / ชื่ออุปกรณ์/เครื่องมือ *</label><input type="text" name="name" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
                 </div>
+                
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="text-xs font-bold text-gray-500">LAST DATE</label><input type="date" name="lastDate" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
                     <div><label class="text-xs font-bold text-gray-500">NEXT DUE *</label><input type="date" name="nextDate" required class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none"></div>
                 </div>
+                
                 <div><label class="text-xs font-bold text-gray-500">PSI *</label><input type="text" name="psi" required class="w-full border-2 border-gray-200 p-2.5 rounded font-bold focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+                
                 <div><label class="text-xs font-bold text-gray-500" data-i18n="label_remarks">REMARKS</label><input type="text" name="remarks" class="w-full border-2 border-gray-200 p-2.5 rounded font-medium focus:border-black outline-none bg-gray-50 focus:bg-white"></div>
+
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CALIBRATION DOC (PDF)</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2" data-i18n="label_pdf">ATTACH CA (PDF)</label>
                     <label class="flex items-center justify-center w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-50 hover:border-gray-500 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                        <span id="pdfName" class="text-xs text-gray-500 font-medium truncate">Choose File...</span>
+                        <span id="pdfName" class="text-xs text-gray-500 font-medium truncate">Choose PDF File...</span>
                         <input type="file" id="pdfInput" accept="application/pdf" class="hidden" onchange="handlePdf(this)">
                     </label>
                 </div>
+
                 <div class="pt-4 flex gap-3">
                     <button type="button" onclick="closeAddModal()" class="flex-1 py-3.5 border-2 border-gray-300 font-bold text-xs uppercase tracking-wider hover:bg-gray-100" data-i18n="btn_cancel">CANCEL</button>
                     <button type="submit" id="submitBtn" class="flex-1 py-3.5 bg-black text-white font-bold text-xs uppercase tracking-wider btn-3d hover:bg-gray-800" data-i18n="btn_save">SAVE</button>
@@ -152,7 +167,6 @@
     <!-- HELP/MANUAL MODAL -->
     <div id="helpModalOverlay" class="fixed inset-0 bg-slate-900/80 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border-4 border-blue-600 rounded-lg relative">
-            <!-- Header -->
             <div class="bg-blue-600 p-5 flex justify-between items-center sticky top-0 z-10">
                 <div class="flex items-center gap-3 text-white">
                     <span class="text-3xl">📘</span>
@@ -161,61 +175,50 @@
                 <button onclick="closeHelpModal()" class="text-white hover:text-blue-100 font-bold text-2xl">✕</button>
             </div>
             
-            <!-- Content Container -->
             <div class="p-6 space-y-6 manual-section">
-                
-                <!-- THAI CONTENT -->
+                <!-- THAI MANUAL -->
                 <div id="manualContentTH">
-                    <h3 class="text-blue-700">1. ภาพรวมระบบ (Overview)</h3>
+                    <h3>1. ภาพรวมระบบ (Overview)</h3>
                     <p>ระบบ <strong>CALIBRATION TFS TOOLS</strong> ช่วยบริหารจัดการวันครบกำหนดสอบเทียบเครื่องมือวัดในแผนก TFS โดยจะคำนวณสถานะอัตโนมัติและแจ้งเตือนเมื่อถึงกำหนด</p>
-                    
-                    <h3 class="text-blue-700 mt-4">2. ความหมายของสถานะ (Status Colors)</h3>
+                    <h3>2. ความหมายของสถานะ (Status Colors)</h3>
                     <ul>
-                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>ปกติ (Normal):</strong> เครื่องมือยังไม่ถึงกำหนดสอบเทียบ (เหลือเวลามากกว่า 30 วัน)</li>
-                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>ใกล้ครบ (Due Soon):</strong> เหลือเวลาน้อยกว่าหรือเท่ากับ 30 วัน</li>
-                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>เกินกำหนด (Overdue):</strong> เลยวันสอบเทียบแล้ว ต้องดำเนินการทันที</li>
+                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>ปกติ (Normal):</strong> เหลือเวลามากกว่า 30 วัน</li>
+                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>ใกล้ครบ (Due Soon):</strong> เหลือเวลาน้อยกว่า 30 วัน</li>
+                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>เกินกำหนด (Overdue):</strong> เลยวันสอบเทียบแล้ว</li>
                     </ul>
-
-                    <h3 class="text-blue-700 mt-4">3. การเพิ่มอุปกรณ์ (Add Tool)</h3>
+                    <h3>3. การเพิ่มอุปกรณ์ (Add Tool)</h3>
                     <ul>
                         <li>กดปุ่ม <strong>"+ เพิ่มอุปกรณ์"</strong> ด้านบน</li>
-                        <li><strong>รูปถ่าย (Photo):</strong> แตะที่กรอบเพื่อถ่ายรูป หรือเลือกรูปจากเครื่อง</li>
-                        <li>กรอก <strong>รหัส (ID), ชื่อ (Name), PSI</strong> ให้ครบถ้วน</li>
-                        <li>เลือก <strong>วันครบกำหนด (Next Due)</strong> *สำคัญมาก ระบบใช้คำนวณสถานะ</li>
-                        <li><strong>แนบเอกสาร Calibration:</strong> เลือกไฟล์ PDF เพื่อเก็บใบรับรอง (ขนาดไม่เกิน 5MB)</li>
-                        <li>กด <strong>บันทึก (Save)</strong> และรอจนกว่าจะขึ้น Success</li>
+                        <li><strong>รูปถ่าย (Photo):</strong> แตะที่กรอบเพื่อแนบรูป</li>
+                        <li>กรอกข้อมูลให้ครบถ้วน โดยเฉพาะ <strong>Next Due (วันครบกำหนด)</strong></li>
+                        <li><strong>แนบเอกสาร Calibration:</strong> เลือกไฟล์ PDF (ขนาดไม่เกิน 5MB)</li>
+                        <li>กด <strong>บันทึก (Save)</strong> และรอจนขึ้น Success</li>
                     </ul>
-
-                    <h3 class="text-blue-700 mt-4">4. การดูเอกสาร (View Document)</h3>
-                    <p>หากเครื่องมือรายการใดมีการแนบไฟล์ PDF ไว้ จะมีปุ่ม <strong>📄 ดูเอกสาร Calibration</strong> ปรากฏขึ้นที่การ์ดรายการ สามารถกดเพื่อเปิดดูใบรับรองได้ทันที</p>
+                    <h3>4. การดูเอกสาร</h3>
+                    <p>กดปุ่ม <strong>📄 ดูเอกสาร Calibration</strong> ที่การ์ดรายการ (ปุ่มจะขึ้นเฉพาะรายการที่มีไฟล์แนบ)</p>
                 </div>
 
-                <!-- ENGLISH CONTENT (Hidden by default) -->
+                <!-- ENGLISH MANUAL -->
                 <div id="manualContentEN" class="hidden">
-                    <h3 class="text-blue-700">1. System Overview</h3>
-                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates for tools in the TFS department. It automatically calculates status and provides alerts.</p>
-                    
-                    <h3 class="text-blue-700 mt-4">2. Status Indicators</h3>
+                    <h3>1. System Overview</h3>
+                    <p>The <strong>CALIBRATION TFS TOOLS</strong> system manages calibration due dates for tools. It automatically alerts users of upcoming or overdue items.</p>
+                    <h3>2. Status Indicators</h3>
                     <ul>
-                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>Normal:</strong> More than 30 days remaining.</li>
-                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>Due Soon:</strong> Due within 30 days.</li>
-                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>Overdue:</strong> Calibration date has passed. Action required.</li>
+                        <li><span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mr-1"></span> <strong>Normal:</strong> > 30 days remaining.</li>
+                        <li><span class="inline-block w-3 h-3 bg-amber-500 rounded-full mr-1"></span> <strong>Due Soon:</strong> <= 30 days remaining.</li>
+                        <li><span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-1"></span> <strong>Overdue:</strong> Calibration date passed.</li>
                     </ul>
-
-                    <h3 class="text-blue-700 mt-4">3. Adding a Tool</h3>
+                    <h3>3. Adding a Tool</h3>
                     <ul>
-                        <li>Click the <strong>"+ ADD TOOL"</strong> button.</li>
-                        <li><strong>Photo:</strong> Tap the box to take a photo or select one from your device.</li>
-                        <li>Fill in <strong>Tool ID, Name, PSI</strong>.</li>
-                        <li>Select <strong>Next Due Date</strong> (Critical for status calculation).</li>
-                        <li><strong>Attach Calibration Doc:</strong> Upload the Calibration Certificate (PDF, Max 5MB).</li>
-                        <li>Click <strong>SAVE</strong> and wait for the success message.</li>
+                        <li>Click <strong>"+ ADD TOOL"</strong>.</li>
+                        <li><strong>Photo:</strong> Attach an image of the tool.</li>
+                        <li>Fill in details, especially <strong>Next Due</strong>.</li>
+                        <li><strong>Attach PDF:</strong> Upload Calibration Certificate (Max 5MB).</li>
+                        <li>Click <strong>SAVE</strong>.</li>
                     </ul>
-
-                    <h3 class="text-blue-700 mt-4">4. Viewing Documents</h3>
-                    <p>If a PDF was uploaded for a tool, a <strong>📄 VIEW CALIBRATION</strong> button will appear on the tool card. Click to view the certificate.</p>
+                    <h3>4. Viewing Documents</h3>
+                    <p>Click <strong>📄 VIEW CALIBRATION</strong> on the tool card to view the PDF.</p>
                 </div>
-
             </div>
             
             <div class="p-4 border-t border-gray-200 bg-gray-50 text-center">
@@ -225,8 +228,10 @@
     </div>
 
     <script>
-        // *** CHANGE THIS URL TO YOUR DEPLOYED SCRIPT URL ***
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9G7-pUwaurN0VA0wwC0TWlJFc79PlFNlZxGOa53BXO3oObFxAIt9ODTSdudFEMnC1KA/exec'; 
+        // **************************************************************************
+        // URL ของคุณที่ได้จากการ Deploy Web App (ตรวจสอบว่าลงท้ายด้วย /exec)
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO6DzCDexU-hFAPrPaNmtD8yTxI9MhIw_RV-8dJQCaTSJavAS5hWPMHmD6mh1KTJNV/exec';
+        // **************************************************************************
 
         let currentLang = 'th';
         let rawData = [];
@@ -263,7 +268,6 @@
         }
 
         function updateUI() {
-            // General translations
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.dataset.i18n;
                 if(translations[currentLang][key]) el.innerText = translations[currentLang][key];
@@ -271,25 +275,21 @@
             document.getElementById('langBtn').innerText = currentLang === 'en' ? "EN" : "TH";
             document.getElementById('manualBtnText').innerText = translations[currentLang].manual_btn;
 
-            // Manual Content Toggle
             const manualTH = document.getElementById('manualContentTH');
             const manualEN = document.getElementById('manualContentEN');
             const manualTitle = document.getElementById('manualTitle');
 
             if (currentLang === 'th') {
-                manualTH.classList.remove('hidden');
-                manualEN.classList.add('hidden');
-                manualTitle.innerText = "คู่มือการใช้งาน";
+                manualTH.classList.remove('hidden'); manualEN.classList.add('hidden'); manualTitle.innerText = "คู่มือการใช้งาน";
             } else {
-                manualTH.classList.add('hidden');
-                manualEN.classList.remove('hidden');
-                manualTitle.innerText = "USER MANUAL";
+                manualTH.classList.add('hidden'); manualEN.classList.remove('hidden'); manualTitle.innerText = "USER MANUAL";
             }
         }
 
         async function fetchData() {
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
+                if (!response.ok) throw new Error("HTTP " + response.status);
                 rawData = await response.json();
                 
                 rawData = rawData.map(item => {
@@ -306,13 +306,13 @@
                 updateStats();
                 renderList();
                 checkDailyAlerts(rawData);
-                
                 document.getElementById('loadingState').classList.add('hidden');
                 document.getElementById('equipmentList').classList.remove('hidden');
 
             } catch (error) {
                 console.error(error);
-                alert("Connection Error. Please try again.");
+                alert("Connection Error. Please try again later.\n" + error.message);
+                document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Connection Failed</p>`;
             }
         }
 
@@ -320,46 +320,28 @@
             const list = document.getElementById('equipmentList');
             list.innerHTML = '';
             rawData.sort((a, b) => {
-                const priority = { overdue: 0, warning: 1, normal: 2 };
-                return priority[a.status] - priority[b.status];
+                const p = { overdue: 0, warning: 1, normal: 2 };
+                return p[a.status] - p[b.status];
             });
 
             rawData.forEach(item => {
-                let boxClass = 'box-normal';
-                let textColor = 'text-emerald-700';
-                let badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                let boxClass = 'box-normal', textColor = 'text-emerald-700', badgeClass = 'bg-emerald-100 text-emerald-800';
                 
-                if (item.status === 'overdue') {
-                    boxClass = 'box-overdue'; textColor = 'text-red-700'; badgeColor = 'bg-red-100 text-red-800 border-red-200';
-                } else if (item.status === 'warning') {
-                    boxClass = 'box-warning'; textColor = 'text-amber-700'; badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
-                }
+                if (item.status === 'overdue') { boxClass = 'box-overdue'; textColor = 'text-red-700'; badgeClass = 'bg-red-100 text-red-800'; } 
+                else if (item.status === 'warning') { boxClass = 'box-warning'; textColor = 'text-amber-700'; badgeClass = 'bg-amber-100 text-amber-800'; }
 
-                const statusText = item.status === 'overdue' 
-                    ? `${Math.abs(item.days)} ${translations[currentLang].status_over}`
-                    : `${item.days} ${translations[currentLang].status_left}`;
-                
-                const imgHTML = item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs tracking-wider">NO IMAGE</div>`;
-
-                // Add PDF Button if link exists
-                const pdfButton = item.pdf ? `
-                    <a href="${item.pdf}" target="_blank" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 flex items-center gap-1">
-                        📄 ${translations[currentLang].view_pdf}
-                    </a>
-                ` : '';
-
+                const statusText = item.status === 'overdue' ? `${Math.abs(item.days)} ${translations[currentLang].status_over}` : `${item.days} ${translations[currentLang].status_left}`;
+                const imgHTML = item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs">NO IMAGE</div>`;
+                const pdfButton = item.pdf ? `<a href="${item.pdf}" target="_blank" class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 flex items-center gap-1 mt-1">📄 ${translations[currentLang].view_pdf}</a>` : '';
                 const remarksText = item.remarks ? `<p class="text-xs text-gray-500 italic mt-1 border-t pt-1">Note: ${item.remarks}</p>` : '';
 
                 list.innerHTML += `
                     <div class="${boxClass} flex flex-col group h-full rounded-lg overflow-hidden relative">
                         <div class="h-48 w-full border-b-2 border-gray-100 relative bg-white">${imgHTML}
-                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-xs font-black uppercase tracking-wide rounded border ${badgeColor} shadow-sm">${statusText}</span></div>
+                            <div class="absolute top-2 right-2"><span class="px-2 py-1 text-xs font-black uppercase tracking-wide rounded border ${badgeClass} shadow-sm">${statusText}</span></div>
                         </div>
                         <div class="p-5 flex-1 flex flex-col">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID: ${item.id}</span>
-                                ${pdfButton}
-                            </div>
+                            <div class="flex justify-between items-start mb-1"><span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID: ${item.id}</span>${pdfButton}</div>
                             <h3 class="font-bold text-xl leading-tight mb-2 text-gray-900">${item.name}</h3>
                             ${remarksText}
                             <div class="mt-auto pt-4 border-t border-gray-200/50 text-sm flex justify-between items-center">
@@ -378,23 +360,13 @@
             if (alerts.length > 0) {
                 alerts.forEach(item => {
                     const isOverdue = item.status === 'overdue';
-                    const borderColor = isOverdue ? 'border-red-500' : 'border-amber-500';
-                    const bgColor = isOverdue ? 'bg-red-50' : 'bg-amber-50';
                     const icon = isOverdue ? '🔴' : '🟡';
-                    const textStatus = isOverdue ? `Overdue ${Math.abs(item.days)} Days` : `Due in ${item.days} Days`;
                     container.innerHTML += `
-                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border-l-8 ${borderColor} shadow-sm rounded-r-lg">
+                        <div class="flex items-start gap-3 p-4 mb-2 bg-white border-l-8 ${isOverdue ? 'border-red-500' : 'border-amber-500'} shadow-sm rounded-r-lg">
                             <span class="text-xl mt-1">${icon}</span>
                             <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-bold text-gray-900 text-lg leading-none">${item.name}</h4>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded ${bgColor} border ${isOverdue ? 'border-red-200 text-red-800' : 'border-amber-200 text-amber-800'} uppercase">${textStatus}</span>
-                                </div>
-                                <p class="text-xs font-bold text-gray-400 mt-1">ID: ${item.id}</p>
-                                <div class="flex justify-between mt-2 text-sm">
-                                    <span class="text-gray-600">PSI: <strong>${item.owner}</strong></span>
-                                    <span class="font-mono font-bold text-gray-800">${formatDate(item.nextDate)}</span>
-                                </div>
+                                <h4 class="font-bold text-gray-900">${item.name}</h4>
+                                <div class="flex justify-between mt-1 text-sm"><span class="text-gray-600">PSI: <strong>${item.owner}</strong></span><span class="font-mono font-bold">${formatDate(item.nextDate)}</span></div>
                             </div>
                         </div>`;
                 });
@@ -403,11 +375,9 @@
         }
 
         function closeAlertModal() { document.getElementById('alertModalOverlay').classList.add('hidden'); }
-        
-        // --- Help Modal Functions ---
         function openHelpModal() { document.getElementById('helpModalOverlay').classList.remove('hidden'); }
         function closeHelpModal() { document.getElementById('helpModalOverlay').classList.add('hidden'); }
-
+        
         function updateStats() {
             document.getElementById('statTotal').innerText = rawData.length;
             document.getElementById('statNormal').innerText = rawData.filter(i => i.status === 'normal').length;
@@ -417,44 +387,31 @@
 
         function handleImage(input) {
             if (input.files && input.files[0]) {
-                const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.src = e.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800;
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const scale = 800 / img.width;
+                        canvas.width = 800; canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                         imageBase64 = canvas.toDataURL('image/jpeg', 0.6); 
                         document.getElementById('preview').src = imageBase64;
                         document.getElementById('preview').classList.remove('hidden');
                         document.getElementById('uploadPlaceholder').classList.add('hidden');
                     }
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
         function handlePdf(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                if (file.size > 5 * 1024 * 1024) { // Limit 5MB
-                    alert("File too large (Max 5MB)");
-                    input.value = "";
-                    return;
-                }
-                document.getElementById('pdfName').innerText = file.name;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    pdfBase64 = e.target.result; // Data URL for PDF
-                };
-                reader.readAsDataURL(file);
-            }
+            if (input.files[0].size > 5 * 1024 * 1024) { alert("File too large > 5MB"); input.value=""; return; }
+            document.getElementById('pdfName').innerText = input.files[0].name;
+            const reader = new FileReader();
+            reader.onload = (e) => { pdfBase64 = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
         }
 
         function submitData(e) {
@@ -466,36 +423,19 @@
 
             const formData = new FormData(e.target);
             const payload = {
-                id: formData.get('id'),
-                name: formData.get('name'),
-                lastDate: formData.get('lastDate'),
-                nextDate: formData.get('nextDate'),
-                psi: formData.get('psi'),
-                remarks: formData.get('remarks'),
-                imageBase64: imageBase64,
-                pdfBase64: pdfBase64 // Send PDF
+                id: formData.get('id'), name: formData.get('name'), lastDate: formData.get('lastDate'),
+                nextDate: formData.get('nextDate'), psi: formData.get('psi'), remarks: formData.get('remarks'),
+                imageBase64: imageBase64, pdfBase64: pdfBase64
             };
 
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
             .then(res => res.json())
             .then(data => {
-                alert("Success!");
-                closeAddModal();
-                fetchData();
+                if(data.status === 'success') { alert("Success!"); closeAddModal(); fetchData(); }
+                else throw new Error(data.message);
             })
-            .catch(err => {
-                console.error(err);
-                alert("Data sent (Please verify refresh)");
-                closeAddModal();
-                fetchData();
-            })
-            .finally(() => {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            });
+            .catch(err => { alert("Error: " + err.message); })
+            .finally(() => { btn.innerText = originalText; btn.disabled = false; });
         }
 
         function openAddModal() { document.getElementById('addModalOverlay').classList.remove('hidden'); }
@@ -504,16 +444,16 @@
             document.getElementById('addForm').reset();
             document.getElementById('preview').classList.add('hidden');
             document.getElementById('uploadPlaceholder').classList.remove('hidden');
-            document.getElementById('pdfName').innerText = "Choose File...";
-            imageBase64 = null;
-            pdfBase64 = null;
+            document.getElementById('pdfName').innerText = "Choose PDF File...";
+            imageBase64 = null; pdfBase64 = null;
         }
         function formatDate(d) {
             const date = new Date(d);
-            return `${date.getDate().toString().padStart(2,'0')}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getFullYear()}`;
+            return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
         }
     </script>
 </body>
 </html>
+
 
 
